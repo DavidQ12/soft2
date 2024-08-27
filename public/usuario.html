@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Usuario - Uforum</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <header>
+        <!-- Aquí iría el logo y el nombre de la página -->
+    </header>
+
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-header">
+                Información del Usuario
+            </div>
+            <div class="card-body">
+                <div class="form-group">
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" name="nombre" class="form-control" value="{{ $usuario['nombre'] }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="email">Correo Electrónico:</label>
+                    <input type="email" id="email" name="email" class="form-control" value="{{ $usuario['email'] }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="carrera">Carrera:</label>
+                    <input type="text" id="carrera" name="carrera" class="form-control" value="{{ $usuario['carrera'] }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="carnet">Carnet:</label>
+                    <input type="text" id="carnet" name="carnet" class="form-control" value="{{ $usuario['carnet'] }}" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="descripcion">Descripción:</label>
+                    <textarea id="descripcion" name="descripcion" class="form-control" rows="4">{{ $usuario['descripcion'] }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label for="foto">Foto de Perfil:</label>
+                    <input type="file" id="foto" name="foto" class="form-control-file">
+                    <img src="{{ $usuario['foto'] }}" alt="Foto de Perfil" style="width: 100px; margin-top: 10px;" class="rounded-circle">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Actualizar Perfil</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

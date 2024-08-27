@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="chatTitle">Chats - Uforum</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+        }
+        .container {
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: 100%;
+        }
+        .chat-list {
+            width: 300px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .chat-item img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+        }
+        .chat-item .info {
+            flex: 1;
+        }
+        .chat-item .info .name {
+            font-weight: bold;
+        }
+        .chat-item .info .preview {
+            color: #555;
+        }
+        .chat-box {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .chat-box .chat-header {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            background-color: #f7f7f7;
+            font-weight: bold;
+        }
+        .chat-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .message.sender {
+            background-color: #007bff;
+            color: #fff;
+            text-align: right;
+            align-items: flex-end;
+        }
+        .message.receiver {
+            background-color: #f1f1f1;
+            color: #333;
+            text-align: left;
+            align-items: flex-start;
+        }
+        .message img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+        .chat-form {
+            padding: 20px;
+            border-top: 1px solid #ddd;
+            background-color: #fff;
+        }
+        .chat-form textarea {
+            resize: none;
+        }
+        .chat-form input[type="file"] {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="chat-list" id="chatList">
+            <!-- Lista de chats -->
+        </div>
+        <div class="chat-box" id="chatBox">
+            <div id="chatHeader" class="chat-header">Selecciona un chat para comenzar</div>
+            <div id="chatContent" class="chat-content">
+                <!-- Aquí se mostrarán los mensajes del chat seleccionado -->
+            </div>
+            <form id="chatForm" class="chat-form" enctype="multipart/form-data" style="display: none;">
+                <div class="form-group">
+                    <textarea name="message" class="form-control" rows="2" placeholder="Escribe tu mensaje..."></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="file" name="image" class="form-control-file" id="fileInput">
+                </div>
+                <button type="submit" class="btn btn-primary">Enviar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const chatList = document.getElementById('chatList');
+            const chatBox = document.getElementById('chatBox');
+            const chatHeader = document.getElementById('chatHeader');
+            const chatContent = document.getElementById('chatContent');
+            const form = document.getElementById('chatForm');
+
+            const conversations = [
+                { id: 1, name: "David Ernesto Quintanilla Segovia", preview: "Lorem ipsum dolor sit amet...", image: "images/David_foto.jpeg" },
+                { id: 2, name: "Luis Francisco Pleitez Quintanilla", preview: "Proin ac mauris non sem faucibus...", image: "images/pleitez_foto.jpg" },
+                { id: 3, name: "Patrick Jeremi Orellana Menjívar", preview: "Vestibulum ante ipsum primis...", image: "images/patrick_foto.jpg" }
+            ];
+
+            conversations.forEach(convo => {
+                const chatItem = document.createElement('div');
+                chatItem.classList.add('chat-item');
+                chatItem.dataset.id = convo.id;
+
+                const avatar = document.createElement('img');
+                avatar.src = convo.image;
+                chatItem.appendChild(avatar);
+
+                const info = document.createElement('div');
+                info.classList.add('info');
+
+                const name = document.createElement('div');
+                name.classList.add('name');
+                name.textContent = convo.name;
+                info.appendChild(name);
+
+                const preview = document.createElement('div');
+                preview.classList.add('preview');
+                preview.textContent = convo.preview;
+                info.appendChild(preview);
+
+                chatItem.appendChild(info);
+                chatList.appendChild(chatItem);
+
+                chatItem.addEventListener('click', function() {
+                    openChat(convo.id);
+                });
+            });
+
+            function openChat(id) {
+                const selectedConvo = conversations.find(convo => convo.id === id);
+                chatHeader.textContent = `Chat con ${selectedConvo.name}`;
+                form.style.display = 'block';
+
+                // Simular mensajes
+                chatContent.innerHTML = '';
+                setTimeout(() => {
+                    appendMessageToChatBox(createUserMessage({ message: 'Hola, ¿cómo estás?' }));
+                }, 500);
+            }
+
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(form);
+
+                if (formData.get('message').trim() || formData.get('image').size > 0) {
+                    const userMessage = createUserMessage(formData);
+                    appendMessageToChatBox(userMessage);
+
+                    // Simular una respuesta de la "otra persona"
+                    setTimeout(function() {
+                        const simulatedResponse = generateSimulatedResponse(formData.get('message').trim());
+                        appendMessageToChatBox(simulatedResponse);
+                    }, 1000);
+
+                    form.reset();
+                }
+            });
+
+            function createUserMessage(formData) {
+                const messageText = formData.get('message');
+                const imageFile = formData.get('image');
+
+                const message = document.createElement('div');
+                message.classList.add('message', 'sender');
+
+                if (messageText) {
+                    const textElement = document.createElement('p');
+                    textElement.textContent = messageText;
+                    message.appendChild(textElement);
+                }
+
+                if (imageFile && imageFile.size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const imageElement = document.createElement('img');
+                        imageElement.src = e.target.result;
+                        message.appendChild(imageElement);
+                    };
+                    reader.readAsDataURL(imageFile);
+                }
+
+                return message;
+            }
+
+            function generateSimulatedResponse(userMessage) {
+                let responseMessageText;
+
+                const normalizedMessage = userMessage.toLowerCase();
+
+                if (normalizedMessage.includes("hola")) {
+                    responseMessageText = "¡Hola! Qué bueno verte por aquí.";
+                } else if (normalizedMessage.includes("cómo estás")) {
+                    responseMessageText = "Todo bien, ¿y tú cómo has estado?";
+                } else if (normalizedMessage.includes("qué haces")) {
+                    responseMessageText = "Acabo de terminar un proyecto. ¿Tú en qué andas?";
+                } else if (normalizedMessage.includes("adiós") || normalizedMessage.includes("hasta luego")) {
+                    responseMessageText = "¡Nos vemos pronto! Cuídate.";
+                } else if (normalizedMessage.includes("gracias")) {
+                    responseMessageText = "No hay de qué, ¡siempre a la orden!";
+                } else {
+                    const simulatedResponses = [
+                        "Interesante, cuéntame más.",
+                        "No lo sabía, sigue contándome.",
+                        "Eso suena genial, ¿me puedes dar más detalles?",
+                        "Qué interesante, ¿y luego qué pasó?"
+                    ];
+                    responseMessageText = simulatedResponses[Math.floor(Math.random() * simulatedResponses.length)];
+                }
+
+                const responseMessage = document.createElement('div');
+                responseMessage.classList.add('message', 'receiver');
+                const responseText = document.createElement('p');
+                responseText.textContent = responseMessageText;
+                responseMessage.appendChild(responseText);
+
+                return responseMessage;
+            }
+
+            function appendMessageToChatBox(message) {
+                chatContent.appendChild(message);
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+

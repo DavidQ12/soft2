@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Publicación - Uforum</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div id="publicacionDetalle"></div>
+
+        <!-- Botón para iniciar un chat con el autor -->
+        <div class="mb-4">
+            <button class="btn btn-primary" onclick="iniciarChat()">Chatear con el autor</button>
+        </div>
+
+        <!-- Formulario para agregar un comentario -->
+        <div class="card mb-4">
+            <div class="card-header">Agregar Comentario</div>
+            <div class="card-body">
+                <form id="formComentario">
+                    <div class="form-group">
+                        <label for="comentario">Comentario</label>
+                        <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Comentar</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sección para mostrar los comentarios -->
+        <div id="comentarios"></div>
+
+        <!-- Sección de reacciones -->
+        <div id="reacciones" class="mt-4">
+            <button class="btn btn-success" onclick="reaccionar('me_gusta')">Me gusta</button>
+            <button class="btn btn-danger" onclick="reaccionar('no_me_gusta')">No me gusta</button>
+            <button class="btn btn-warning" onclick="reaccionar('me_encanta')">Me encanta</button>
+            <button class="btn btn-secondary" onclick="reaccionar('me_enoja')">Me enoja</button>
+        </div>
+    </div>
+
+    <!-- Scripts de Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script para manejar los detalles de la publicación -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        // Mostrar detalles de la publicación
+        function mostrarDetallePublicacion() {
+            const publicacion = obtenerDetallePublicacion(id);
+            const publicacionDetalle = document.getElementById('publicacionDetalle');
+            publicacionDetalle.innerHTML = `
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">${publicacion.titulo}</h5>
+                        <p class="card-text">${publicacion.contenido}</p>
+                        <div class="d-flex align-items-center mb-3">
+                            <img src="${publicacion.foto}" alt="Foto de perfil" class="rounded-circle" style="width: 50px; height: 50px; margin-right: 10px;">
+                            <div>
+                                <strong>${publicacion.nombre}</strong><br>
+                                <small class="text-muted">Carnet: ${publicacion.carnet}</small><br>
+                                <small class="text-muted">Carrera: ${publicacion.carrera}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Mostrar comentarios
+        function mostrarComentarios() {
+            const comentarios = obtenerComentarios(id);
+            const contenedorComentarios = document.getElementById('comentarios');
+            contenedorComentarios.innerHTML = '';
+
+            comentarios.forEach(comentario => {
+                const comentarioHTML = `
+                    <div class="card mb-2">
+                        <div class="card-body">
+                            <p class="card-text">${comentario.texto}</p>
+                            <small class="text-muted">Publicado por ${comentario.nombre}</small>
+                        </div>
+                    </div>
+                `;
+                contenedorComentarios.innerHTML += comentarioHTML;
+            });
+        }
+
+        // Obtener detalle de la publicación desde localStorage
+        function obtenerDetallePublicacion(id) {
+            const publicaciones = JSON.parse(localStorage.getItem('publicaciones')) || [];
+            return publicaciones[id];
+        }
+
+        // Obtener comentarios de la publicación desde localStorage
+        function obtenerComentarios(id) {
+            const comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
+            return comentarios.filter(comentario => comentario.idPublicacion == id);
+        }
+
+        // Guardar nuevo comentario
+        document.getElementById('formComentario').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const texto = document.getElementById('comentario').value;
+            const nombre = 'Anónimo'; // Puedes obtener el nombre de alguna parte
+
+            const nuevoComentario = {
+                idPublicacion: id,
+                texto,
+                nombre
+            };
+
+            const comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
+            comentarios.push(nuevoComentario);
+            localStorage.setItem('comentarios', JSON.stringify(comentarios));
+
+            // Mostrar comentarios actualizados
+            mostrarComentarios();
+
+            // Limpiar formulario
+            document.getElementById('formComentario').reset();
+        });
+
+        // Mostrar detalles de la publicación y comentarios al cargar la página
+        mostrarDetallePublicacion();
+        mostrarComentarios();
+
+        // Manejar las reacciones
+        function reaccionar(tipo) {
+            alert('Reacción: ' + tipo); // Aquí puedes implementar la lógica para guardar las reacciones
+        }
+
+        // Función para iniciar chat
+        function iniciarChat() {
+            const publicacion = obtenerDetallePublicacion(id);
+            const nombreAutor = publicacion.nombre;
+
+            // Redirigir a la página de chat con el nombre del autor
+            window.location.href = `chat.html?autor=${nombreAutor}`;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
