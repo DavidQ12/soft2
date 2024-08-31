@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle de Publicación - Uforum</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Asegúrate de que los botones con imágenes se vean bien */
+        .reaction-btn {
+            border: none;
+            background: none;
+            padding: 0;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .reaction-btn img {
+            width: 30px;
+            height: 30px;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -34,10 +48,18 @@
 
         <!-- Sección de reacciones -->
         <div id="reacciones" class="mt-4">
-            <button class="btn btn-success" onclick="reaccionar('me_gusta')">Me gusta</button>
-            <button class="btn btn-danger" onclick="reaccionar('no_me_gusta')">No me gusta</button>
-            <button class="btn btn-warning" onclick="reaccionar('me_encanta')">Me encanta</button>
-            <button class="btn btn-secondary" onclick="reaccionar('me_enoja')">Me enoja</button>
+            <button class="reaction-btn" onclick="reaccionar('me_gusta')">
+                <img src="images/como.png" alt="Me gusta">
+            </button>
+            <button class="reaction-btn" onclick="reaccionar('no_me_gusta')">
+                <img src="images/disgusto.png" alt="No me gusta">
+            </button>
+            <button class="reaction-btn" onclick="reaccionar('me_encanta')">
+                <img src="images/precioso.png" alt="Me encanta">
+            </button>
+            <button class="reaction-btn" onclick="reaccionar('me_enoja')">
+                <img src="images/enojado.png" alt="Me enoja">
+            </button>
         </div>
     </div>
 
@@ -148,6 +170,7 @@
     </script>
 </body>
 </html>
+
 
 
 
