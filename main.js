@@ -1,72 +1,166 @@
 const express = require('express');
 const path = require('path');
+const multer = require('multer');
+const mysql = require('mysql2');
+const bcrypt = require('bcrypt');  // Necesario para cifrar y comparar contraseñas
 const app = express();
 const port = 3000;
 
+// Controladores
+const UserController = require('./controllers/UserController');
+
+// Configuración de multer para subir archivos
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage: storage });
+
+// Configuración de la base de datos
+const connection = mysql.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '1234567',
+  database: 'uforum2'
+});
+
+connection.connect(err => {
+  if (err) {
+    console.error('Error al conectar a la base de datos:', err.stack);
+    return;
+  }
+  console.log('Conectado a la base de datos como id ' + connection.threadId);
+});
+
 // Middleware para manejar datos de formularios
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // Servir archivos estáticos (js, css, imágenes, html)
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// Ruta de bienvenida
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'inicio.html'));
-});
-
-// Ruta de login
-app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
-});
-
-// Ruta de registro
-app.get('/registro', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'registro.html'));
-});
-
-// Manejar POST de login
+// Ruta de login para API
 app.post('/login', (req, res) => {
-    // Aquí puedes agregar lógica de autenticación
-    console.log('Inicio de sesión:', req.body);
+  const { usuario, password } = req.body;
 
-    // Redirigir a la página de publicaciones
-    res.redirect('/publicaciones');
+  // Consulta para encontrar al usuario por su email o código de estudiante
+  const query = 'SELECT * FROM users WHERE email = ? OR codigo_estudiante = ?';
+  connection.query(query, [usuario, usuario], (err, results) => {
+    if (err) {
+      console.error('Error al consultar el usuario:', err);
+      return res.status(500).send('Error en el servidor');
+    }
+
+    if (results.length === 0) {
+      return res.status(401).send('Usuario o contraseña incorrectos');
+    }
+
+    const user = results[0];
+
+    // Comparar la contraseña proporcionada con la almacenada en la base de datos
+    bcrypt.compare(password, user.password, (err, isMatch) => {
+      if (err) {
+        console.error('Error al comparar las contraseñas:', err);
+        return res.status(500).send('Error en el servidor');
+      }
+
+      if (!isMatch) {
+        return res.status(401).send('Usuario o contraseña incorrectos');
+      }
+
+      // Si la contraseña coincide, redirigir al usuario a la página de publicaciones
+      res.redirect('/publicaciones');
+    });
+  });
 });
 
-// Manejar POST de registro
-app.post('/registro', (req, res) => {
-    // Aquí puedes agregar lógica para registrar al usuario
-    console.log('Registro de usuario:', req.body);
+app.post('/registro', upload.single('foto'), (req, res) => {
+  console.log('Registro de usuario:', req.body);
 
-    // Redirigir a la página de publicaciones
-    res.redirect('/publicaciones');
+  const { nombre, email, password, carrera, codigo_estudiante, descripcion } = req.body;
+  const foto_perfil = req.file ? req.file.filename : null;
+
+  // Cifrar la contraseña antes de guardarla
+  bcrypt.hash(password, 10, (err, hash) => {
+    if (err) {
+      console.error('Error al cifrar la contraseña:', err);
+      return res.status(500).send('Error en el servidor');
+    }
+
+    const query = `
+      INSERT INTO users (nombre, codigo_estudiante, carrera, email, password, descripcion, foto_perfil)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+    const values = [nombre, codigo_estudiante, carrera, email, hash, descripcion, foto_perfil];
+
+    connection.query(query, values, (err, results) => {
+      if (err) {
+        console.error('Error al insertar el usuario:', err);
+        return res.status(500).send('Error al registrar el usuario');
+      }
+      console.log('Usuario registrado con éxito');
+      res.redirect('/publicaciones');
+    });
+  });
 });
 
-// Otras rutas
+// Rutas
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'inicio.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.get('/registro', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'registro.html'));
+});
+
+// Ruta para obtener el perfil del usuario
+app.get('/usuario/:codigo_estudiante', UserController.getProfile);
+
 app.get('/chat', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'chat.html'));
+  res.sendFile(path.join(__dirname, 'public', 'chat.html'));
 });
 
 app.get('/info', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'info.html'));
-});
-
-app.get('/usuario', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'usuario.html'));
+  res.sendFile(path.join(__dirname, 'public', 'info.html'));
 });
 
 app.get('/publicaciones', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'publicaciones.html'));
+  res.sendFile(path.join(__dirname, 'public', 'publicaciones.html'));
 });
 
 app.get('/publicaciones/:id', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'publicacion_detalle.html'));
+  res.sendFile(path.join(__dirname, 'public', 'publicacion_detalle.html'));
 });
 
 // Iniciar servidor
 app.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

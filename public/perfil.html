@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil de Usuario</title>
+    <style>
+        /* Estilos básicos para el perfil */
+        .profile-container {
+            width: 80%;
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .profile-container img {
+            border-radius: 50%;
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>Perfil de Usuario</h1>
+        <p><strong>Nombre:</strong> <span id="nombre"></span></p>
+        <p><strong>Correo Electrónico:</strong> <span id="email"></span></p>
+        <p><strong>Carrera:</strong> <span id="carrera"></span></p>
+        <p><strong>Carnet:</strong> <span id="codigo_estudiante"></span></p>
+        <p><strong>Descripción:</strong> <span id="descripcion"></span></p>
+        <p><strong>Foto de Perfil:</strong> <img id="foto_perfil" src="" alt="Foto de Perfil"></p>
+    </div>
+    <script>
+        // Función para obtener el código de estudiante de la URL
+        function getCodigoEstudiante() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('codigo_estudiante');
+        }
+
+        // Cargar perfil del usuario
+        async function loadProfile() {
+            const codigoEstudiante = getCodigoEstudiante();
+            if (!codigoEstudiante) {
+                console.error('Código de estudiante no proporcionado');
+                return;
+            }
+
+            try {
+                const response = await fetch(`/usuario/${codigoEstudiante}`);
+                if (!response.ok) {
+                    throw new Error('Error al obtener el perfil');
+                }
+                const user = await response.json();
+
+                // Rellenar los datos en la página
+                document.getElementById('nombre').textContent = user.nombre;
+                document.getElementById('email').textContent = user.email;
+                document.getElementById('carrera').textContent = user.carrera;
+                document.getElementById('codigo_estudiante').textContent = user.codigo_estudiante;
+                document.getElementById('descripcion').textContent = user.descripcion;
+
+                // Configurar la foto de perfil
+                const fotoPerfil = user.foto_perfil ? `/uploads/${user.foto_perfil}` : 'default.jpg';
+                document.getElementById('foto_perfil').src = fotoPerfil;
+            } catch (error) {
+                console.error('Error al cargar el perfil:', error);
+            }
+        }
+
+        // Ejecutar la carga del perfil al cargar la página
+        window.onload = loadProfile;
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
