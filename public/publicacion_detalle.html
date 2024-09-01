@@ -15,8 +15,8 @@
             margin: 0 5px;
         }
         .reaction-btn img {
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
         }
     </style>
 </head>
@@ -33,10 +33,14 @@
         <div class="card mb-4">
             <div class="card-header">Agregar Comentario</div>
             <div class="card-body">
-                <form id="formComentario">
+                <form id="formComentario" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="comentario">Comentario</label>
                         <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="imagen">Adjuntar Imagen</label>
+                        <input type="file" class="form-control-file" id="imagen" name="imagen">
                     </div>
                     <button type="submit" class="btn btn-primary">Comentar</button>
                 </form>
@@ -106,6 +110,7 @@
                     <div class="card mb-2">
                         <div class="card-body">
                             <p class="card-text">${comentario.texto}</p>
+                            ${comentario.imagen ? `<img src="${comentario.imagen}" alt="Imagen adjunta" class="img-fluid">` : ''}
                             <small class="text-muted">Publicado por ${comentario.nombre}</small>
                         </div>
                     </div>
@@ -132,22 +137,49 @@
 
             const texto = document.getElementById('comentario').value;
             const nombre = 'Anónimo'; // Puedes obtener el nombre de alguna parte
+            const imagen = document.getElementById('imagen').files[0];
 
-            const nuevoComentario = {
-                idPublicacion: id,
-                texto,
-                nombre
+            // Leer la imagen como una URL de datos
+            const reader = new FileReader();
+            reader.onloadend = function () {
+                const nuevoComentario = {
+                    idPublicacion: id,
+                    texto,
+                    nombre,
+                    imagen: reader.result
+                };
+
+                const comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
+                comentarios.push(nuevoComentario);
+                localStorage.setItem('comentarios', JSON.stringify(comentarios));
+
+                // Mostrar comentarios actualizados
+                mostrarComentarios();
+
+                // Limpiar formulario
+                document.getElementById('formComentario').reset();
             };
+            
+            if (imagen) {
+                reader.readAsDataURL(imagen);
+            } else {
+                // Manejar caso sin imagen
+                const nuevoComentario = {
+                    idPublicacion: id,
+                    texto,
+                    nombre
+                };
 
-            const comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
-            comentarios.push(nuevoComentario);
-            localStorage.setItem('comentarios', JSON.stringify(comentarios));
+                const comentarios = JSON.parse(localStorage.getItem('comentarios')) || [];
+                comentarios.push(nuevoComentario);
+                localStorage.setItem('comentarios', JSON.stringify(comentarios));
 
-            // Mostrar comentarios actualizados
-            mostrarComentarios();
+                // Mostrar comentarios actualizados
+                mostrarComentarios();
 
-            // Limpiar formulario
-            document.getElementById('formComentario').reset();
+                // Limpiar formulario
+                document.getElementById('formComentario').reset();
+            }
         });
 
         // Mostrar detalles de la publicación y comentarios al cargar la página
@@ -170,6 +202,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 

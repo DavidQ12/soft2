@@ -1,4 +1,4 @@
-// Inicializar publicaciones con datos predeterminados si no hay publicaciones en localStorage
+// Inicializar publicaciones con datos predeterminados 
 if (!localStorage.getItem('publicaciones')) {
     const publicacionesIniciales = [
         {
@@ -7,7 +7,7 @@ if (!localStorage.getItem('publicaciones')) {
             'nombre': 'David Ernesto Quintanilla Segovia',
             'carnet': 'SMSS152722',
             'carrera': 'Ingeniería en Sistemas y Redes',
-            'foto': 'images/David_foto.jpeg' // Asegúrate de que esta ruta sea correcta
+            'foto': 'images/David_foto.jpeg' 
         },
         {
             'titulo': 'Publicación de Luis Francisco Pleitez Quintanilla',
@@ -15,7 +15,7 @@ if (!localStorage.getItem('publicaciones')) {
             'nombre': 'Luis Francisco Pleitez Quintanilla',
             'carnet': 'SMSS073122',
             'carrera': 'Ingeniería en Sistemas',
-            'foto': 'images/pleitez_foto.jpg' // Asegúrate de que esta ruta sea correcta
+            'foto': 'images/pleitez_foto.jpg' 
         },
         {
             'titulo': 'Publicación de Patrick Jeremi Orellana Menjívar',
@@ -23,7 +23,7 @@ if (!localStorage.getItem('publicaciones')) {
             'nombre': 'Patrick Jeremi Orellana Menjívar',
             'carnet': 'SMSS108822',
             'carrera': 'Ingeniería en Sistemas',
-            'foto': 'images/patrick_foto.jpg' // Asegúrate de que esta ruta sea correcta
+            'foto': 'images/patrick_foto.jpg' 
         }
     ];
     localStorage.setItem('publicaciones', JSON.stringify(publicacionesIniciales));
@@ -56,7 +56,7 @@ function crearPublicacion(titulo, contenido) {
         nombre: usuarioAutenticado.nombre,
         carnet: usuarioAutenticado.carnet,
         carrera: usuarioAutenticado.carrera,
-        foto: usuarioAutenticado.foto // Usar la foto del usuario autenticado
+        foto: usuarioAutenticado.foto // Tendria que Usar la foto del usuario autenticado
     };
 
     publicaciones.unshift(nuevaPublicacion); // Añadir al principio del array
@@ -103,9 +103,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const titulo = document.getElementById('titulo').value;
         const contenido = document.getElementById('contenido').value;
 
-        // Obtener la foto del usuario autenticado para la nueva publicación
+        // Obtener la foto del usuario autenticado para la nueva publicación(no funciona)
         const usuarioAutenticado = obtenerUsuarioAutenticado();
-        const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default_foto.jpg';
+        const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg';
 
         crearPublicacion(titulo, contenido, foto);
 

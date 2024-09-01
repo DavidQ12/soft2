@@ -6,34 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Publicaciones - Uforum</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .card img {
-            max-width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .dropdown-menu {
-            min-width: 150px;
-        }
-
-        .tendencias {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        .tendencia-item {
-            cursor: pointer;
-            color: #007bff;
-        }
-
-        .tendencia-item:hover {
-            text-decoration: underline;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/publicaciones.css">
 </head>
 
 <body>
@@ -56,40 +29,46 @@
         </div>
     </header>
 
-    <div class="container mt-5">
+    <div class="container mt-5 d-flex">
         <!-- Apartado de tendencias -->
-        <div class="tendencias">
+        <aside class="tendencias">
             <h5>Tendencias</h5>
             <ul id="tendenciasList" class="list-unstyled">
                 <!-- Aquí se mostrarán las tendencias -->
             </ul>
-        </div>
+        </aside>
 
-        <!-- Mostrar mensajes de éxito -->
-        <div id="mensajeExito" class="alert alert-success" style="display: none;">
-            Publicación creada con éxito.
-        </div>
-
-        <!-- Formulario para crear nuevas publicaciones -->
-        <div class="card mb-4">
-            <div class="card-header">Crear Nueva Publicación</div>
-            <div class="card-body">
-                <form id="formPublicacion">
-                    <div class="form-group">
-                        <label for="titulo">Título</label>
-                        <input type="text" class="form-control" id="titulo" name="titulo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="contenido">Contenido</label>
-                        <textarea class="form-control" id="contenido" name="contenido" rows="3" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Publicar</button>
-                </form>
+        <main class="content-area flex-grow-1">
+            <!-- Mostrar mensajes de éxito -->
+            <div id="mensajeExito" class="alert alert-success" style="display: none;">
+                Publicación creada con éxito.
             </div>
-        </div>
 
-        <!-- Contenedor de las publicaciones existentes -->
-        <div id="contenedorPublicaciones"></div>
+            <!-- Formulario para crear nuevas publicaciones -->
+            <div class="card mb-4">
+                <div class="card-header">Crear Nueva Publicación</div>
+                <div class="card-body">
+                    <form id="formPublicacion" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="titulo">Título</label>
+                            <input type="text" class="form-control" id="titulo" name="titulo" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="contenido">Contenido</label>
+                            <textarea class="form-control" id="contenido" name="contenido" rows="3" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="imagen">Imagen</label>
+                            <input type="file" class="form-control-file" id="imagen" name="imagen">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Publicar</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contenedor de las publicaciones existentes -->
+            <div id="contenedorPublicaciones"></div>
+        </main>
     </div>
 
     <!-- Scripts de jQuery, Popper.js y Bootstrap -->
@@ -103,7 +82,7 @@
         const tendencias = [
             { nombre: '#ExamenFinal', url: 'tendencias.html?hashtag=ExamenFinal' },
             { nombre: '#ProyectoFinal', url: 'tendencias.html?hashtag=ProyectoFinal' },
-            { nombre: '#FiestasUGB', url: 'tendencias.html?hashtag=FiestasUFG' },
+            { nombre: '#FiestasUGB', url: 'tendencias.html?hashtag=FiestasUGB' },
             { nombre: '#Conferencias', url: 'tendencias.html?hashtag=Conferencias' }
         ];
 
@@ -140,9 +119,10 @@
                         <div class="card-body">
                             <h5 class="card-title">${publicacion.titulo}</h5>
                             <p class="card-text">${publicacion.contenido}</p>
+                            ${publicacion.imagen ? `<img src="${publicacion.imagen}" class="img-fluid mb-3" alt="Imagen de publicación">` : ''}
                             <div class="d-flex align-items-center mb-3">
-                                <img src="${publicacion.foto}" alt="Foto de perfil">
-                                <div>
+                                <img src="${publicacion.foto}" alt="Foto de perfil" class="img-fluid rounded-circle" style="width: 50px; height: 50px;">
+                                <div class="ml-3">
                                     <strong>${publicacion.nombre}</strong><br>
                                     <small class="text-muted">Carnet: ${publicacion.carnet}</small><br>
                                     <small class="text-muted">Carrera: ${publicacion.carrera}</small>
@@ -167,29 +147,59 @@
 
                 const titulo = document.getElementById('titulo').value;
                 const contenido = document.getElementById('contenido').value;
+                const imagenFile = document.getElementById('imagen').files[0];
 
                 const usuarioAutenticado = obtenerUsuarioAutenticado();
                 const nombre = usuarioAutenticado ? usuarioAutenticado.nombre : 'Anónimo';
-                const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default_user.png'; // Ruta por defecto si no hay foto
+                const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg'; //  por defecto si no hay foto
 
-                const nuevaPublicacion = {
-                    titulo,
-                    contenido,
-                    nombre,
-                    carnet: usuarioAutenticado ? usuarioAutenticado.carnet : 'Desconocido',
-                    carrera: usuarioAutenticado ? usuarioAutenticado.carrera : 'Desconocida',
-                    foto
+                // Leer la imagen como Data URL
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const nuevaPublicacion = {
+                        titulo,
+                        contenido,
+                        nombre,
+                        carnet: usuarioAutenticado ? usuarioAutenticado.carnet : 'Desconocido',
+                        carrera: usuarioAutenticado ? usuarioAutenticado.carrera : 'Desconocida',
+                        foto,
+                        imagen: e.target.result // Data URL de la imagen
+                    };
+
+                    publicaciones.unshift(nuevaPublicacion);
+                    guardarPublicaciones();
+                    mostrarPublicaciones();
+
+                    // Mostrar mensaje de éxito
+                    document.getElementById('mensajeExito').style.display = 'block';
+
+                    // Limpiar formulario
+                    document.getElementById('formPublicacion').reset();
                 };
 
-                publicaciones.unshift(nuevaPublicacion);
-                guardarPublicaciones();
-                mostrarPublicaciones();
+                if (imagenFile) {
+                    reader.readAsDataURL(imagenFile);
+                } else {
+                    // Si no hay imagen, agregar la publicación sin imagen
+                    const nuevaPublicacion = {
+                        titulo,
+                        contenido,
+                        nombre,
+                        carnet: usuarioAutenticado ? usuarioAutenticado.carnet : 'Desconocido',
+                        carrera: usuarioAutenticado ? usuarioAutenticado.carrera : 'Desconocida',
+                        foto
+                    };
 
-                // Mostrar mensaje de éxito
-                document.getElementById('mensajeExito').style.display = 'block';
+                    publicaciones.unshift(nuevaPublicacion);
+                    guardarPublicaciones();
+                    mostrarPublicaciones();
 
-                // Limpiar formulario
-                document.getElementById('formPublicacion').reset();
+                    // Mostrar mensaje de éxito
+                    document.getElementById('mensajeExito').style.display = 'block';
+
+                    // Limpiar formulario
+                    document.getElementById('formPublicacion').reset();
+                }
             });
 
             // Cerrar sesión
@@ -202,6 +212,8 @@
 </body>
 
 </html>
+
+
 
 
 

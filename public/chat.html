@@ -35,78 +35,178 @@
             padding: 15px;
             border-bottom: 1px solid #ddd;
             cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .chat-item:hover {
+            background-color: #f1f1f1;
         }
         .chat-item img {
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             margin-right: 10px;
+            object-fit: cover;
         }
         .chat-item .info {
             flex: 1;
         }
         .chat-item .info .name {
             font-weight: bold;
+            margin-bottom: 5px;
         }
         .chat-item .info .preview {
             color: #555;
+            font-size: 14px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
         }
         .chat-box {
             flex: 1;
             display: flex;
             flex-direction: column;
             background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            overflow: hidden;
         }
-        .chat-box .chat-header {
+        .chat-header {
             padding: 15px;
             border-bottom: 1px solid #ddd;
             background-color: #f7f7f7;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+        .chat-header img {
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            object-fit: cover;
         }
         .chat-content {
             flex: 1;
             overflow-y: auto;
             padding: 20px;
+            background-color: #e5ddd5;
         }
         .message {
-            padding: 10px;
-            border-radius: 8px;
-            margin-bottom: 10px;
+            max-width: 60%;
+            margin-bottom: 15px;
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            position: relative;
+            padding: 10px 15px;
+            border-radius: 8px;
+            word-wrap: break-word;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
         .message.sender {
-            background-color: #007bff;
-            color: #fff;
-            text-align: right;
-            align-items: flex-end;
+            background-color: #dcf8c6;
+            align-self: flex-end;
         }
         .message.receiver {
-            background-color: #f1f1f1;
-            color: #333;
-            text-align: left;
-            align-items: flex-start;
+            background-color: #fff;
+            align-self: flex-start;
+        }
+        .message p {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.4;
         }
         .message img {
+            margin-top: 10px;
+            border-radius: 8px;
             max-width: 100%;
             height: auto;
-            border-radius: 8px;
-            margin-top: 10px;
+            cursor: pointer;
+        }
+        .message .timestamp {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+            align-self: flex-end;
+        }
+        .edit-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: transparent;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+        }
+        .message.sender:hover .edit-btn {
+            display: block;
+        }
+        .edit-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .edit-form textarea {
+            width: 100%;
+            height: 40px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .edit-form button {
+            background-color: #0084ff;
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 14px;
+            padding: 10px 20px;
+            cursor: pointer;
+            outline: none;
+        }
+        .edit-form button.cancel {
+            background-color: #ccc;
+            margin-left: 10px;
         }
         .chat-form {
-            padding: 20px;
+            padding: 15px;
             border-top: 1px solid #ddd;
-            background-color: #fff;
+            background-color: #f7f7f7;
+            display: flex;
+            align-items: center;
         }
         .chat-form textarea {
             resize: none;
+            width: 100%;
+            height: 40px;
+            border-radius: 20px;
+            border: 1px solid #ccc;
+            padding: 10px 15px;
+            outline: none;
+            font-size: 14px;
+            margin-right: 10px;
         }
         .chat-form input[type="file"] {
-            margin-top: 10px;
+            display: none;
+        }
+        .chat-form label {
+            margin-right: 10px;
+            cursor: pointer;
+            color: #555;
+            font-size: 20px;
+        }
+        .chat-form button {
+            background-color: #0084ff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #fff;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            outline: none;
         }
     </style>
 </head>
@@ -121,17 +221,20 @@
                 <!-- Aquí se mostrarán los mensajes del chat seleccionado -->
             </div>
             <form id="chatForm" class="chat-form" enctype="multipart/form-data" style="display: none;">
-                <div class="form-group">
-                    <textarea name="message" class="form-control" rows="2" placeholder="Escribe tu mensaje..."></textarea>
-                </div>
-                <div class="form-group">
-                    <input type="file" name="image" class="form-control-file" id="fileInput">
-                </div>
-                <button type="submit" class="btn btn-primary">Enviar</button>
+                <label for="fileInput">&#128247;</label>
+                <input type="file" name="image" id="fileInput" accept="image/*">
+                <textarea name="message" placeholder="Escribe tu mensaje..."></textarea>
+                <button type="submit">&#9658;</button>
             </form>
         </div>
     </div>
 
+    <!-- Scripts de Bootstrap (Opcionales) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Script del Chat -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const chatList = document.getElementById('chatList');
@@ -148,43 +251,29 @@
 
             conversations.forEach(convo => {
                 const chatItem = document.createElement('div');
-                chatItem.classList.add('chat-item');
-                chatItem.dataset.id = convo.id;
-
-                const avatar = document.createElement('img');
-                avatar.src = convo.image;
-                chatItem.appendChild(avatar);
-
-                const info = document.createElement('div');
-                info.classList.add('info');
-
-                const name = document.createElement('div');
-                name.classList.add('name');
-                name.textContent = convo.name;
-                info.appendChild(name);
-
-                const preview = document.createElement('div');
-                preview.classList.add('preview');
-                preview.textContent = convo.preview;
-                info.appendChild(preview);
-
-                chatItem.appendChild(info);
-                chatList.appendChild(chatItem);
-
+                chatItem.className = 'chat-item';
+                chatItem.innerHTML = `
+                    <img src="${convo.image}" alt="${convo.name}">
+                    <div class="info">
+                        <div class="name">${convo.name}</div>
+                        <div class="preview">${convo.preview}</div>
+                    </div>
+                `;
                 chatItem.addEventListener('click', function() {
                     openChat(convo.id);
                 });
+                chatList.appendChild(chatItem);
             });
 
             function openChat(id) {
                 const selectedConvo = conversations.find(convo => convo.id === id);
-                chatHeader.textContent = `Chat con ${selectedConvo.name}`;
+                chatHeader.innerHTML = `<img src="${selectedConvo.image}" alt="${selectedConvo.name}"> Chat con ${selectedConvo.name}`;
                 form.style.display = 'block';
 
                 // Simular mensajes
                 chatContent.innerHTML = '';
                 setTimeout(() => {
-                    appendMessageToChatBox(createUserMessage({ message: 'Hola, ¿cómo estás?' }));
+                    appendMessageToChatBox(createSimulatedMessage('Hola, ¿cómo estás?'));
                 }, 500);
             }
 
@@ -214,11 +303,9 @@
                 const message = document.createElement('div');
                 message.classList.add('message', 'sender');
 
-                if (messageText) {
-                    const textElement = document.createElement('p');
-                    textElement.textContent = messageText;
-                    message.appendChild(textElement);
-                }
+                const textElement = document.createElement('p');
+                textElement.textContent = messageText;
+                message.appendChild(textElement);
 
                 if (imageFile && imageFile.size > 0) {
                     const reader = new FileReader();
@@ -229,6 +316,23 @@
                     };
                     reader.readAsDataURL(imageFile);
                 }
+
+                const timestamp = document.createElement('span');
+                timestamp.classList.add('timestamp');
+                timestamp.textContent = new Date().toLocaleTimeString();
+                message.appendChild(timestamp);
+
+                const editButton = document.createElement('button');
+                editButton.classList.add('edit-btn');
+                editButton.textContent = 'Editar';
+                editButton.addEventListener('click', () => {
+                    const newMessageText = prompt('Edita tu mensaje:', messageText);
+                    if (newMessageText) {
+                        textElement.textContent = newMessageText;
+                        messageText = newMessageText; // Actualiza el mensaje para la próxima edición
+                    }
+                });
+                message.appendChild(editButton);
 
                 return message;
             }
@@ -264,6 +368,11 @@
                 responseText.textContent = responseMessageText;
                 responseMessage.appendChild(responseText);
 
+                const timestamp = document.createElement('span');
+                timestamp.classList.add('timestamp');
+                timestamp.textContent = new Date().toLocaleTimeString();
+                responseMessage.appendChild(timestamp);
+
                 return responseMessage;
             }
 
@@ -271,10 +380,30 @@
                 chatContent.appendChild(message);
                 chatContent.scrollTop = chatContent.scrollHeight;
             }
+
+            function createSimulatedMessage(text) {
+                const message = document.createElement('div');
+                message.classList.add('message', 'receiver');
+                const textElement = document.createElement('p');
+                textElement.textContent = text;
+                message.appendChild(textElement);
+
+                const timestamp = document.createElement('span');
+                timestamp.classList.add('timestamp');
+                timestamp.textContent = new Date().toLocaleTimeString();
+                message.appendChild(timestamp);
+
+                return message;
+            }
         });
     </script>
 </body>
 </html>
+
+
+
+
+
 
 
 
