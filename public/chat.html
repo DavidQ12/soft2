@@ -125,19 +125,22 @@
             margin-top: 5px;
             align-self: flex-end;
         }
-        .edit-btn {
+        .message .edit-delete-buttons {
+            display: flex;
             position: absolute;
             top: 5px;
             right: 5px;
+        }
+        .edit-delete-buttons button {
             background: transparent;
             border: none;
             color: #555;
             cursor: pointer;
             font-size: 14px;
-            display: none;
+            margin-left: 5px;
         }
-        .message.sender:hover .edit-btn {
-            display: block;
+        .message:hover .edit-delete-buttons {
+            display: flex;
         }
         .edit-form {
             display: flex;
@@ -216,7 +219,7 @@
             <!-- Lista de chats -->
         </div>
         <div class="chat-box" id="chatBox">
-            <div id="chatHeader" class="chat-header">Selecciona un chat para comenzar</div>
+            <div id="chatHeader" class="chat-header">CHATS</div>
             <div id="chatContent" class="chat-content">
                 <!-- Aquí se mostrarán los mensajes del chat seleccionado -->
             </div>
@@ -244,9 +247,11 @@
             const form = document.getElementById('chatForm');
 
             const conversations = [
-                { id: 1, name: "David Ernesto Quintanilla Segovia", preview: "Lorem ipsum dolor sit amet...", image: "images/David_foto.jpeg" },
-                { id: 2, name: "Luis Francisco Pleitez Quintanilla", preview: "Proin ac mauris non sem faucibus...", image: "images/pleitez_foto.jpg" },
-                { id: 3, name: "Patrick Jeremi Orellana Menjívar", preview: "Vestibulum ante ipsum primis...", image: "images/patrick_foto.jpg" }
+                { id: 1, name: "David Ernesto Quintanilla Segovia", preview: "Nada que decir", image: "images/David_foto.jpeg" },
+                { id: 2, name: "Luis Francisco Pleitez Quintanilla", preview: "Estoy usando Uforum", image: "images/pleitez_foto.jpg" },
+                { id: 3, name: "Patrick Jeremi Orellana Menjívar", preview: "Nada que ver por aqui", image: "images/patrick_foto.jpg" },
+                { id: 4, name: "Eunice Andrea Portillo Soto", preview: "Estoy durmiendo", image: "images/fotom.jpg" },
+                { id: 5, name: "Amy Katherine Castro Andrade", preview: "Estoy en el cine", image: "images/khaterinefoto.jpg" }
             ];
 
             conversations.forEach(convo => {
@@ -322,6 +327,11 @@
                 timestamp.textContent = new Date().toLocaleTimeString();
                 message.appendChild(timestamp);
 
+                // Contenedor de botones de edición y eliminación
+                const editDeleteButtons = document.createElement('div');
+                editDeleteButtons.classList.add('edit-delete-buttons');
+
+                // Botón de edición
                 const editButton = document.createElement('button');
                 editButton.classList.add('edit-btn');
                 editButton.textContent = 'Editar';
@@ -332,7 +342,20 @@
                         messageText = newMessageText; // Actualiza el mensaje para la próxima edición
                     }
                 });
-                message.appendChild(editButton);
+                editDeleteButtons.appendChild(editButton);
+
+                // Botón de eliminación
+                const deleteButton = document.createElement('button');
+                deleteButton.classList.add('delete-btn');
+                deleteButton.textContent = 'Eliminar';
+                deleteButton.addEventListener('click', () => {
+                    if (confirm('¿Estás seguro de que deseas eliminar este mensaje?')) {
+                        message.remove(); // Elimina el mensaje del DOM
+                    }
+                });
+                editDeleteButtons.appendChild(deleteButton);
+
+                message.appendChild(editDeleteButtons);
 
                 return message;
             }

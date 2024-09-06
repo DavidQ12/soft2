@@ -1,26 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Perfil del Usuario - Uforum</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <header>
-        <!-- Aquí iría el logo y el nombre de la página -->
-    </header>
+    <style>
+        body {
+            background-color: #f4f7f9;
+            color: #333;
+        }
 
-    <div class="container mt-5">
+        .navbar {
+            background-color: #007bff;
+        }
+
+        .navbar-brand {
+            color: #ffffff;
+            font-weight: bold;
+        }
+
+        .navbar-brand:hover {
+            color: #e9ecef;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-top: 30px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px; /* Bordes redondeados en lugar de circulares */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-header h1 {
+            margin-top: 15px;
+            color: #007bff;
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        .card {
+            border-radius: 15px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: bold;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .card-body {
+            background-color: #ffffff;
+            padding: 20px;
+        }
+
+        .form-control[readonly] {
+            background-color: #e9ecef;
+            border: 1px solid #ced4da;
+        }
+
+        .btn-update {
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <a class="navbar-brand" href="#">Uforum</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Aquí puedes añadir enlaces de navegación si lo deseas -->
+        </div>
+    </nav>
+
+    <div class="container profile-header">
+        <img id="fotoPerfil" src="" alt="Foto de Perfil">
+        <h1 id="nombre">Nombre del Usuario</h1>
+    </div>
+
+    <div class="container">
         <div class="card">
             <div class="card-header">
                 Información del Usuario
             </div>
             <div class="card-body">
-                <div class="form-group">
-                    <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" name="nombre" class="form-control" readonly>
-                </div>
                 <div class="form-group">
                     <label for="email">Correo Electrónico:</label>
                     <input type="email" id="email" name="email" class="form-control" readonly>
@@ -37,13 +126,7 @@
                     <label for="descripcion">Descripción:</label>
                     <textarea id="descripcion" name="descripcion" class="form-control" rows="4" readonly></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="foto">Foto de Perfil:</label>
-                    <img id="fotoPerfil" src="" alt="Foto de Perfil" style="width: 100px; margin-top: 10px;" class="rounded-circle">
-                </div>
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary" disabled>Actualizar Perfil</button>
-                </div>
+                <button type="submit" class="btn btn-primary btn-update" disabled>Actualizar Perfil</button>
             </div>
         </div>
     </div>
@@ -54,7 +137,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Obtener el código de estudiante de la URL
             const urlParams = new URLSearchParams(window.location.search);
             const codigoEstudiante = urlParams.get('codigo_estudiante');
@@ -76,23 +159,23 @@
                     console.log('Datos del usuario:', data);
 
                     // Rellenar los campos del perfil
-                    document.getElementById('nombre').value = data.nombre;
+                    document.getElementById('nombre').textContent = data.nombre;
                     document.getElementById('email').value = data.email;
                     document.getElementById('carrera').value = data.carrera;
                     document.getElementById('carnet').value = data.codigo_estudiante;
                     document.getElementById('descripcion').value = data.descripcion;
 
-                    if (data.foto_perfil) {
-                        document.getElementById('fotoPerfil').src = `/uploads/${data.foto_perfil}`;
-                    } else {
-                        document.getElementById('fotoPerfil').src = '/path/to/default.jpg'; // Cambia esta ruta según tu configuración
-                    }
+                    // Configurar la foto de perfil
+                    document.getElementById('fotoPerfil').src = data.foto_perfil ? `/uploads/${data.foto_perfil}` : '/path/to/default.jpg';
                 })
                 .catch(error => console.error('Error al cargar el perfil del usuario:', error));
         });
     </script>
 </body>
+
 </html>
+
+
 
 
 

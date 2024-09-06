@@ -1,18 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Publicaciones - Uforum</title>
+    <title>Publicaciones - UFORUM</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/publicaciones.css">
 </head>
 
 <body>
-    <header class="bg-light p-3">
+    <header class="bg-light py-3 border-bottom">
         <div class="container d-flex justify-content-between align-items-center">
-            <h1>Uforum</h1>
+            <h1 class="h3">Uforum</h1>
             <div class="d-flex align-items-center">
                 <a href="usuario.html" class="btn btn-outline-primary mr-2">Mi Perfil</a>
                 <div class="dropdown">
@@ -30,21 +30,18 @@
     </header>
 
     <div class="container mt-5 d-flex">
-        <!-- Apartado de tendencias -->
-        <aside class="tendencias">
+        <aside class="flex-shrink-1 pr-4">
             <h5>Tendencias</h5>
             <ul id="tendenciasList" class="list-unstyled">
                 <!-- Aquí se mostrarán las tendencias -->
             </ul>
         </aside>
 
-        <main class="content-area flex-grow-1">
-            <!-- Mostrar mensajes de éxito -->
-            <div id="mensajeExito" class="alert alert-success" style="display: none;">
+        <main class="flex-grow-1">
+            <div id="mensajeExito" class="alert alert-success d-none">
                 Publicación creada con éxito.
             </div>
 
-            <!-- Formulario para crear nuevas publicaciones -->
             <div class="card mb-4">
                 <div class="card-header">Crear Nueva Publicación</div>
                 <div class="card-body">
@@ -66,8 +63,9 @@
                 </div>
             </div>
 
-            <!-- Contenedor de las publicaciones existentes -->
-            <div id="contenedorPublicaciones"></div>
+            <div id="contenedorPublicaciones">
+                <!-- Aquí se mostrarán las publicaciones -->
+            </div>
         </main>
     </div>
 
@@ -78,19 +76,19 @@
 
     <!-- Script para manejar las publicaciones -->
     <script>
-        // Tendencias predefinidas (puedes personalizarlas o cargarlas dinámicamente)
+        // Tendencias predefinidas
         const tendencias = [
-            { nombre: '#ExamenFinal', url: 'tendencias.html?hashtag=ExamenFinal' },
-            { nombre: '#ProyectoFinal', url: 'tendencias.html?hashtag=ProyectoFinal' },
-            { nombre: '#FiestasUGB', url: 'tendencias.html?hashtag=FiestasUGB' },
-            { nombre: '#Conferencias', url: 'tendencias.html?hashtag=Conferencias' }
+            { nombre: '#ExamenesFinales', url: 'tendencias.html?hashtag=ExamenesFinales' },
+            { nombre: '#IntramurosUGB', url: 'tendencias.html?hashtag=IntramurosUGB' },
+            { nombre: '#FiestaUGB', url: 'tendencias.html?hashtag=FiestaUGB' },
+            { nombre: '#TalleresUGB', url: 'tendencias.html?hashtag=TalleresUGB' }
         ];
 
         // Mostrar las tendencias en la página
         function mostrarTendencias() {
             const tendenciasList = document.getElementById('tendenciasList');
             tendencias.forEach(tendencia => {
-                const tendenciaHTML = `<li class="tendencia-item" onclick="window.location.href='${tendencia.url}'">${tendencia.nombre}</li>`;
+                const tendenciaHTML = `<li class="list-group-item list-group-item-action" onclick="window.location.href='${tendencia.url}'">${tendencia.nombre}</li>`;
                 tendenciasList.innerHTML += tendenciaHTML;
             });
         }
@@ -151,7 +149,7 @@
 
                 const usuarioAutenticado = obtenerUsuarioAutenticado();
                 const nombre = usuarioAutenticado ? usuarioAutenticado.nombre : 'Anónimo';
-                const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg'; //  por defecto si no hay foto
+                const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg'; // Por defecto si no hay foto
 
                 // Leer la imagen como Data URL
                 const reader = new FileReader();
@@ -171,7 +169,7 @@
                     mostrarPublicaciones();
 
                     // Mostrar mensaje de éxito
-                    document.getElementById('mensajeExito').style.display = 'block';
+                    document.getElementById('mensajeExito').classList.remove('d-none');
 
                     // Limpiar formulario
                     document.getElementById('formPublicacion').reset();
@@ -195,7 +193,7 @@
                     mostrarPublicaciones();
 
                     // Mostrar mensaje de éxito
-                    document.getElementById('mensajeExito').style.display = 'block';
+                    document.getElementById('mensajeExito').classList.remove('d-none');
 
                     // Limpiar formulario
                     document.getElementById('formPublicacion').reset();
@@ -212,6 +210,7 @@
 </body>
 
 </html>
+
 
 
 

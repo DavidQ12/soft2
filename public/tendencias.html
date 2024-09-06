@@ -53,9 +53,9 @@
         // Cargar publicaciones desde localStorage
         let publicaciones = JSON.parse(localStorage.getItem('publicaciones')) || [];
 
-        // Filtrar publicaciones para mostrar solo las más populares (Ejemplo basado en longitud del contenido)
+        // Filtrar y ordenar publicaciones alfabéticamente por título
         function obtenerTendencias() {
-            return publicaciones.sort((a, b) => b.contenido.length - a.contenido.length).slice(0, 5);
+            return publicaciones.sort((a, b) => a.titulo.localeCompare(b.titulo));
         }
 
         // Mostrar publicaciones en tendencia en la página

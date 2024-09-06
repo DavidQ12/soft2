@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,26 +9,77 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background: url('https://source.unsplash.com/1600x900/?technology') no-repeat center center fixed;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
         }
+
         .container {
-            max-width: 500px;
+            max-width: 400px;
             width: 100%;
-            background: #fff;
-            padding: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .form-control {
+            border-radius: 0.25rem;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            border-radius: 0.25rem;
+            box-shadow: none;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .alert {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .text-center a {
+            color: #007bff;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <h2>Iniciar Sesión</h2>
+        <h2 class="text-center">Iniciar Sesión</h2>
+
+        <!-- Mensaje de error o éxito -->
+        <div id="mensaje" class="alert"></div>
+
         <!-- Formulario de login -->
         <form id="formLogin">
             <div class="form-group">
@@ -38,15 +90,13 @@
                 <label for="contrasena">Contraseña</label>
                 <input type="password" class="form-control" id="contrasena" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
         </form>
+        <p class="text-center mt-3">¿No tienes una cuenta? <a href="registro.html">Regístrate aquí</a></p>
     </div>
+
     <!-- Enlazar el script de login -->
-    <script src="logincontroller.js"></script>
+    <script src="/LoginController.js"></script>
 </body>
+
 </html>
-
-
-
-
-
