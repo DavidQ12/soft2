@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña - Uforum</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://source.unsplash.com/1600x900/?cloud') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 400px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            color: #007bff;
+        }
+
+        .form-control {
+            border-radius: 0.25rem;
+            box-shadow: none;
+        }
+
+        .btn-primary {
+            border-radius: 0.25rem;
+            box-shadow: none;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .alert {
+            display: none;
+            margin-top: 15px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .text-center a {
+            color: #007bff;
+        }
+
+        .text-center a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 class="text-center">Recuperar Contraseña</h2>
+
+        <!-- Mensaje de éxito o error -->
+        <div id="mensaje" class="alert"></div>
+
+        <!-- Formulario de recuperación de contraseña -->
+        <form id="formRecuperar">
+            <div class="form-group">
+                <label for="email">Introduce tu correo electrónico</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">Enviar enlace de recuperación</button>
+        </form>
+
+        <p class="text-center mt-3"><a href="login.html">Volver al inicio de sesión</a></p>
+    </div>
+
+    <!-- Script para manejar la lógica -->
+    <script>
+        document.getElementById('formRecuperar').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            
+            try {
+                // Enviar solicitud POST al servidor
+                const response = await fetch('/recuperar', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const result = await response.json();
+                
+                // Mostrar mensaje basado en la respuesta del servidor
+                const mensaje = document.getElementById('mensaje');
+                
+                if (response.ok) {
+                    mensaje.className = 'alert alert-success';
+                    mensaje.textContent = result.message;
+                } else {
+                    mensaje.className = 'alert alert-danger';
+                    mensaje.textContent = result.message || 'Hubo un error. Inténtalo de nuevo.';
+                }
+
+                mensaje.style.display = 'block';
+
+            } catch (error) {
+                // Manejar error en la solicitud
+                const mensaje = document.getElementById('mensaje');
+                mensaje.className = 'alert alert-danger';
+                mensaje.textContent = 'Hubo un error al enviar el correo de recuperación.';
+                mensaje.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -70,6 +70,13 @@
         .text-center a:hover {
             text-decoration: underline;
         }
+
+        /* Estilo adicional para el enlace de recuperación de contraseña */
+        .forgot-password {
+            display: block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
     </style>
 </head>
 
@@ -89,6 +96,8 @@
             <div class="form-group">
                 <label for="contrasena">Contraseña</label>
                 <input type="password" class="form-control" id="contrasena" name="password" required>
+                <!-- Enlace para recuperación de contraseña -->
+                <a href="recuperar_contrasena.html" class="forgot-password">¿Has olvidado tu contraseña? Recuperar</a>
             </div>
             <button type="submit" class="btn btn-primary btn-block">Iniciar Sesión</button>
         </form>

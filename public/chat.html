@@ -211,11 +211,21 @@
             cursor: pointer;
             outline: none;
         }
+        .create-chat-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="chat-list" id="chatList">
+            <button id="newChatBtn" class="create-chat-btn">Crear nuevo chat</button>
             <!-- Lista de chats -->
         </div>
         <div class="chat-box" id="chatBox">
@@ -237,11 +247,15 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+    <!-- Script de Socket.io -->
+    <script src="/socket.io/socket.io.js"></script>
+
     <!-- Script del Chat -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            const socket = io(); // Conectar con el servidor de socket.io
+
             const chatList = document.getElementById('chatList');
-            const chatBox = document.getElementById('chatBox');
             const chatHeader = document.getElementById('chatHeader');
             const chatContent = document.getElementById('chatContent');
             const form = document.getElementById('chatForm');
@@ -250,11 +264,10 @@
                 { id: 1, name: "David Ernesto Quintanilla Segovia", preview: "Nada que decir", image: "images/David_foto.jpeg" },
                 { id: 2, name: "Luis Francisco Pleitez Quintanilla", preview: "Estoy usando Uforum", image: "images/pleitez_foto.jpg" },
                 { id: 3, name: "Patrick Jeremi Orellana Menjívar", preview: "Nada que ver por aqui", image: "images/patrick_foto.jpg" },
-                { id: 4, name: "Eunice Andrea Portillo Soto", preview: "Estoy durmiendo", image: "images/fotom.jpg" },
-                { id: 5, name: "Amy Katherine Castro Andrade", preview: "Estoy en el cine", image: "images/khaterinefoto.jpg" }
+                { id: 4, name: "Erick Antonio Álvarez Melara", preview: "Vamos a jugar esta tarde", image: "images/erick_foto.jpg" }
             ];
 
-            conversations.forEach(convo => {
+            conversations.forEach(function(convo) {
                 const chatItem = document.createElement('div');
                 chatItem.className = 'chat-item';
                 chatItem.innerHTML = `
@@ -275,138 +288,34 @@
                 chatHeader.innerHTML = `<img src="${selectedConvo.image}" alt="${selectedConvo.name}"> Chat con ${selectedConvo.name}`;
                 form.style.display = 'block';
 
-                // Simular mensajes
-                chatContent.innerHTML = '';
-                setTimeout(() => {
-                    appendMessageToChatBox(createSimulatedMessage('Hola, ¿cómo estás?'));
-                }, 500);
+                socket.emit('joinChat', id); // Unirse a la sala de chat
+                chatContent.innerHTML = ''; // Limpiar el contenido del chat
+
+                socket.on('chat message', function(message) {
+                    appendMessageToChatBox(createMessageElement(message.text, message.sender));
+                });
             }
 
             form.addEventListener('submit', function(event) {
                 event.preventDefault();
-
                 const formData = new FormData(form);
 
                 if (formData.get('message').trim() || formData.get('image').size > 0) {
+                    const message = {
+                        text: formData.get('message'),
+                        sender: 'user', // Cambiar a cualquier identificador del usuario
+                        chatId: conversations.find(convo => convo.name === chatHeader.textContent.split('Chat con ')[1])?.id
+                    };
+                    socket.emit('chat message', message); // Enviar mensaje al servidor
                     const userMessage = createUserMessage(formData);
                     appendMessageToChatBox(userMessage);
-
-                    // Simular una respuesta de la "otra persona"
-                    setTimeout(function() {
-                        const simulatedResponse = generateSimulatedResponse(formData.get('message').trim());
-                        appendMessageToChatBox(simulatedResponse);
-                    }, 1000);
-
                     form.reset();
                 }
             });
 
-            function createUserMessage(formData) {
-                const messageText = formData.get('message');
-                const imageFile = formData.get('image');
-
+            function createMessageElement(text, sender) {
                 const message = document.createElement('div');
-                message.classList.add('message', 'sender');
-
-                const textElement = document.createElement('p');
-                textElement.textContent = messageText;
-                message.appendChild(textElement);
-
-                if (imageFile && imageFile.size > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const imageElement = document.createElement('img');
-                        imageElement.src = e.target.result;
-                        message.appendChild(imageElement);
-                    };
-                    reader.readAsDataURL(imageFile);
-                }
-
-                const timestamp = document.createElement('span');
-                timestamp.classList.add('timestamp');
-                timestamp.textContent = new Date().toLocaleTimeString();
-                message.appendChild(timestamp);
-
-                // Contenedor de botones de edición y eliminación
-                const editDeleteButtons = document.createElement('div');
-                editDeleteButtons.classList.add('edit-delete-buttons');
-
-                // Botón de edición
-                const editButton = document.createElement('button');
-                editButton.classList.add('edit-btn');
-                editButton.textContent = 'Editar';
-                editButton.addEventListener('click', () => {
-                    const newMessageText = prompt('Edita tu mensaje:', messageText);
-                    if (newMessageText) {
-                        textElement.textContent = newMessageText;
-                        messageText = newMessageText; // Actualiza el mensaje para la próxima edición
-                    }
-                });
-                editDeleteButtons.appendChild(editButton);
-
-                // Botón de eliminación
-                const deleteButton = document.createElement('button');
-                deleteButton.classList.add('delete-btn');
-                deleteButton.textContent = 'Eliminar';
-                deleteButton.addEventListener('click', () => {
-                    if (confirm('¿Estás seguro de que deseas eliminar este mensaje?')) {
-                        message.remove(); // Elimina el mensaje del DOM
-                    }
-                });
-                editDeleteButtons.appendChild(deleteButton);
-
-                message.appendChild(editDeleteButtons);
-
-                return message;
-            }
-
-            function generateSimulatedResponse(userMessage) {
-                let responseMessageText;
-
-                const normalizedMessage = userMessage.toLowerCase();
-
-                if (normalizedMessage.includes("hola")) {
-                    responseMessageText = "¡Hola! Qué bueno verte por aquí.";
-                } else if (normalizedMessage.includes("cómo estás")) {
-                    responseMessageText = "Todo bien, ¿y tú cómo has estado?";
-                } else if (normalizedMessage.includes("qué haces")) {
-                    responseMessageText = "Acabo de terminar un proyecto. ¿Tú en qué andas?";
-                } else if (normalizedMessage.includes("adiós") || normalizedMessage.includes("hasta luego")) {
-                    responseMessageText = "¡Nos vemos pronto! Cuídate.";
-                } else if (normalizedMessage.includes("gracias")) {
-                    responseMessageText = "No hay de qué, ¡siempre a la orden!";
-                } else {
-                    const simulatedResponses = [
-                        "Interesante, cuéntame más.",
-                        "No lo sabía, sigue contándome.",
-                        "Eso suena genial, ¿me puedes dar más detalles?",
-                        "Qué interesante, ¿y luego qué pasó?"
-                    ];
-                    responseMessageText = simulatedResponses[Math.floor(Math.random() * simulatedResponses.length)];
-                }
-
-                const responseMessage = document.createElement('div');
-                responseMessage.classList.add('message', 'receiver');
-                const responseText = document.createElement('p');
-                responseText.textContent = responseMessageText;
-                responseMessage.appendChild(responseText);
-
-                const timestamp = document.createElement('span');
-                timestamp.classList.add('timestamp');
-                timestamp.textContent = new Date().toLocaleTimeString();
-                responseMessage.appendChild(timestamp);
-
-                return responseMessage;
-            }
-
-            function appendMessageToChatBox(message) {
-                chatContent.appendChild(message);
-                chatContent.scrollTop = chatContent.scrollHeight;
-            }
-
-            function createSimulatedMessage(text) {
-                const message = document.createElement('div');
-                message.classList.add('message', 'receiver');
+                message.classList.add('message', sender === 'user' ? 'sender' : 'receiver');
                 const textElement = document.createElement('p');
                 textElement.textContent = text;
                 message.appendChild(textElement);
@@ -415,22 +324,61 @@
                 timestamp.classList.add('timestamp');
                 timestamp.textContent = new Date().toLocaleTimeString();
                 message.appendChild(timestamp);
-
                 return message;
             }
+
+            function appendMessageToChatBox(message) {
+                chatContent.appendChild(message);
+                chatContent.scrollTop = chatContent.scrollHeight;
+            }
+
+            function createUserMessage(formData) {
+                const message = createMessageElement(formData.get('message'), 'user');
+
+                if (formData.get('image').size > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        message.appendChild(img);
+                        appendMessageToChatBox(message);
+                    };
+                    reader.readAsDataURL(formData.get('image'));
+                } else {
+                    appendMessageToChatBox(message);
+                }
+            }
+
+            // Botón para crear un nuevo chat
+            document.getElementById('newChatBtn').addEventListener('click', function() {
+                const chatName = prompt('Ingresa el nombre del nuevo chat:');
+                
+                if (chatName) {
+                    const newChat = {
+                        id: conversations.length + 1,
+                        name: chatName,
+                        preview: "Nuevo chat creado",
+                        image: "images/default.jpg" // Imagen por defecto
+                    };
+
+                    conversations.push(newChat);
+
+                    const chatItem = document.createElement('div');
+                    chatItem.className = 'chat-item';
+                    chatItem.innerHTML = `
+                        <img src="${newChat.image}" alt="${newChat.name}">
+                        <div class="info">
+                            <div class="name">${newChat.name}</div>
+                            <div class="preview">${newChat.preview}</div>
+                        </div>
+                    `;
+                    chatItem.addEventListener('click', function() {
+                        openChat(newChat.id);
+                    });
+                    chatList.appendChild(chatItem);
+                }
+            });
         });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-

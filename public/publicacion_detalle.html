@@ -18,6 +18,11 @@
             width: 40px;
             height: 40px;
         }
+        .reaction-count {
+            font-size: 14px;
+            display: inline-block;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
@@ -54,15 +59,19 @@
         <div id="reacciones" class="mt-4">
             <button class="reaction-btn" onclick="reaccionar('me_gusta')">
                 <img src="images/como.png" alt="Me gusta">
+                <span class="reaction-count" id="me_gusta_count">0</span>
             </button>
             <button class="reaction-btn" onclick="reaccionar('no_me_gusta')">
                 <img src="images/disgusto.png" alt="No me gusta">
+                <span class="reaction-count" id="no_me_gusta_count">0</span>
             </button>
             <button class="reaction-btn" onclick="reaccionar('me_encanta')">
                 <img src="images/precioso.png" alt="Me encanta">
+                <span class="reaction-count" id="me_encanta_count">0</span>
             </button>
             <button class="reaction-btn" onclick="reaccionar('me_enoja')">
                 <img src="images/enojado.png" alt="Me enoja">
+                <span class="reaction-count" id="me_enoja_count">0</span>
             </button>
         </div>
     </div>
@@ -76,6 +85,13 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
+        let reacciones = {
+            me_gusta: 0,
+            no_me_gusta: 0,
+            me_encanta: 0,
+            me_enoja: 0,
+            usuario_reaccion: null
+        };
 
         // Mostrar detalles de la publicación
         function mostrarDetallePublicacion() {
@@ -182,13 +198,21 @@
             }
         });
 
-        // Mostrar detalles de la publicación y comentarios al cargar la página
-        mostrarDetallePublicacion();
-        mostrarComentarios();
-
         // Manejar las reacciones
         function reaccionar(tipo) {
-            alert('Reacción: ' + tipo); // Aquí puedes implementar la lógica para guardar las reacciones
+            // Eliminar la reacción anterior si ya existe
+            if (reacciones.usuario_reaccion) {
+                reacciones[reacciones.usuario_reaccion]--;
+            }
+            // Asignar la nueva reacción
+            reacciones[tipo]++;
+            reacciones.usuario_reaccion = tipo;
+
+            // Actualizar el DOM
+            document.getElementById('me_gusta_count').innerText = reacciones.me_gusta;
+            document.getElementById('no_me_gusta_count').innerText = reacciones.no_me_gusta;
+            document.getElementById('me_encanta_count').innerText = reacciones.me_encanta;
+            document.getElementById('me_enoja_count').innerText = reacciones.me_enoja;
         }
 
         // Función para iniciar chat
@@ -199,16 +223,10 @@
             // Redirigir a la página de chat con el nombre del autor
             window.location.href = `chat.html?autor=${nombreAutor}`;
         }
+
+        // Mostrar detalles de la publicación y comentarios al cargar la página
+        mostrarDetallePublicacion();
+        mostrarComentarios();
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
