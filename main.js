@@ -7,6 +7,7 @@ const bcrypt = require('bcrypt'); // para cifrar y comparar contraseñas
 const http = require('http'); // Importar http para socket.io
 const socketIo = require('socket.io'); // Importar socket.io
 const nodemailer = require('nodemailer'); // Importar Nodemailer
+const crypto = require('crypto'); // Para generar tokens de recuperación
 const app = express();
 const port = process.env.PORT || 3000; // Usar puerto desde variables de entorno
 
@@ -62,57 +63,44 @@ app.post('/login', (req, res) => {
     }
 
     if (results.length === 0) {
-      console.log('Usuario no encontrado:', usuario);
       return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos' });
     }
 
     const user = results[0];
 
-    console.log('Usuario encontrado:', user);
-
-    // Comparar la contraseña proporcionada con la almacenada en la base de datos
     bcrypt.compare(password, user.password, (err, isMatch) => {
       if (err) {
-        console.error('Error al comparar las contraseñas:', err);
         return res.status(500).json({ success: false, message: 'Error en el servidor' });
       }
-
-      console.log('¿Contraseña coincide?', isMatch);
 
       if (!isMatch) {
         return res.status(401).json({ success: false, message: 'Usuario o contraseña incorrectos' });
       }
 
-      // Si la contraseña coincide, enviar una respuesta de éxito con la información del usuario
+      // Contraseña coincide, enviar éxito
       res.status(200).json({ success: true, usuario: user });
     });
   });
 });
 
 app.post('/registro', upload.single('foto'), (req, res) => {
-  console.log('Registro de usuario:', req.body);
-
   const { nombre, email, password, carrera, codigo_estudiante, descripcion } = req.body;
   const foto_perfil = req.file ? req.file.filename : null;
 
   // Cifrar la contraseña antes de guardarla
   bcrypt.hash(password, 10, (err, hash) => {
     if (err) {
-      console.error('Error al cifrar la contraseña:', err);
       return res.status(500).send('Error en el servidor');
     }
 
-    const query = 
-      `INSERT INTO users (nombre, codigo_estudiante, carrera, email, password, descripcion, foto_perfil)
-       VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    const query = `INSERT INTO users (nombre, codigo_estudiante, carrera, email, password, descripcion, foto_perfil)
+                   VALUES (?, ?, ?, ?, ?, ?, ?)`;
     const values = [nombre, codigo_estudiante, carrera, email, hash, descripcion, foto_perfil];
 
     connection.query(query, values, (err, results) => {
       if (err) {
-        console.error('Error al insertar el usuario:', err);
         return res.status(500).send('Error al registrar el usuario');
       }
-      console.log('Usuario registrado con éxito');
       res.redirect('/publicaciones');
     });
   });
@@ -126,7 +114,7 @@ app.get('/api/chats', (req, res) => {
   res.json({ message: 'Ruta para obtener la lista de chats no implementada' });
 });
 
-// Ruta para obtener los detalles de un chat (no usada)
+// Ruta para obtener detalles de un chat (no usada)
 app.get('/api/chats/:id', (req, res) => {
   res.json({ message: 'Ruta para obtener detalles de un chat no implementada' });
 });
@@ -140,13 +128,11 @@ app.get('/api/chats/:user1_id/:user2_id', (req, res) => {
     return res.status(400).json({ success: false, message: 'ID de usuario inválido' });
   }
 
-  const query = 
-    `SELECT * FROM private_messages
-     WHERE (emisor_id = ? AND receptor_id = ?) OR (emisor_id = ? AND receptor_id = ?)
-     ORDER BY fecha_envio`;
+  const query = `SELECT * FROM private_messages
+                 WHERE (emisor_id = ? AND receptor_id = ?) OR (emisor_id = ? AND receptor_id = ?)
+                 ORDER BY fecha_envio`;
   connection.query(query, [user1_id, user2_id, user2_id, user1_id], (err, results) => {
     if (err) {
-      console.error('Error al obtener mensajes:', err);
       return res.status(500).json({ success: false, message: 'Error al obtener mensajes', error: err });
     }
     res.json(results);
@@ -164,14 +150,12 @@ app.post('/api/chats/:user1_id/:user2_id/messages', upload.single('image'), (req
     return res.status(400).json({ success: false, message: 'ID de usuario inválido' });
   }
 
-  const query = 
-    `INSERT INTO private_messages (emisor_id, receptor_id, contenido, url_imagen)
-     VALUES (?, ?, ?, ?)`;
+  const query = `INSERT INTO private_messages (emisor_id, receptor_id, contenido, url_imagen)
+                 VALUES (?, ?, ?, ?)`;
   const values = [user1_id, user2_id, contenido, urlImagen];
 
   connection.query(query, values, (err, results) => {
     if (err) {
-      console.error('Error al enviar el mensaje:', err);
       return res.status(500).json({ success: false, message: 'Error al enviar el mensaje', error: err });
     }
     res.json({
@@ -221,12 +205,10 @@ io.on('connection', (socket) => {
 
   // Escuchar mensajes de chat
   socket.on('chat message', (msg) => {
-    console.log('Mensaje recibido:', msg);
     io.emit('chat message', msg); // Enviar el mensaje a todos los clientes conectados
   });
 
   socket.on('joinChat', (data) => {
-    console.log(`Usuario se unió al chat: ${data.chatId}`);
     socket.join(data.chatId); // Unir el socket a un canal de chat específico
   });
 
@@ -234,36 +216,47 @@ io.on('connection', (socket) => {
     console.log('Un usuario se ha desconectado');
   });
 });
+
 // Ruta para recuperación de contraseña
 app.post('/recuperar', (req, res) => {
   const { email } = req.body;
 
-  // Aquí debes implementar la lógica para enviar el correo de recuperación.
-  // Por ejemplo, podrías buscar al usuario en la base de datos por su correo electrónico
   const query = 'SELECT * FROM users WHERE email = ?';
   connection.query(query, [email], (err, results) => {
+    if (err) {
+      return res.status(500).json({ success: false, message: 'Error en el servidor' });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    // Generar un token de recuperación
+    const token = crypto.randomBytes(20).toString('hex');
+
+    // Configuración del transportador de Nodemailer
+    const transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    // Configurar el correo electrónico
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Recuperación de contraseña',
+      text: `Haz clic en el siguiente enlace para restablecer tu contraseña: http://localhost:${port}/reset/${token}`
+    };
+
+    transporter.sendMail(mailOptions, (err, info) => {
       if (err) {
-          console.error('Error al consultar el usuario:', err);
-          return res.status(500).json({ success: false, message: 'Error en el servidor' });
+        return res.status(500).json({ success: false, message: 'Error al enviar el correo' });
       }
-
-      if (results.length === 0) {
-          return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-      }
-
-      // Lógica para enviar correo (puedes usar nodemailer u otro servicio aquí)
-      // ...
-      // Configuración del correo
-      // Configuración del transportador de Nodemailer
-const transporter = nodemailer.createTransport({
-  service: 'gmail', // Cambia esto si usas otro servicio
-  auth: {
-      user: process.env.EMAIL_USER, // Tu correo electrónico
-      pass: process.env.EMAIL_PASS  // Tu contraseña de correo o App Password
-  }
-});
-
-      res.status(200).json({ success: true, message: 'Se ha enviado un enlace de recuperación a tu correo electrónico.' });
+      res.json({ success: true, message: 'Correo de recuperación enviado', info });
+    });
   });
 });
 
@@ -271,7 +264,3 @@ const transporter = nodemailer.createTransport({
 server.listen(port, () => {
   console.log(`Servidor escuchando en el puerto ${port}`);
 });
-const crypto = require('crypto');
-
-// Generar un token de recuperación
-const token = crypto.randomBytes(20).toString('hex');

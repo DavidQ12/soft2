@@ -7,6 +7,13 @@
     <title>Publicaciones - UFORUM</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="styles/publicaciones.css">
+    <style>
+        #suggestions {
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+        }
+    </style>
 </head>
 
 <body>
@@ -53,6 +60,7 @@
                         <div class="form-group">
                             <label for="contenido">Contenido</label>
                             <textarea class="form-control" id="contenido" name="contenido" rows="3" required></textarea>
+                            <div id="suggestions" class="list-group" style="display: none; position: absolute;"></div>
                         </div>
                         <div class="form-group">
                             <label for="imagen">Imagen</label>
@@ -116,7 +124,7 @@
                     <div class="card mb-4">
                         <div class="card-body">
                             <h5 class="card-title">${publicacion.titulo}</h5>
-                            <p class="card-text">${publicacion.contenido}</p>
+                            <p>${convertirEnlaces(publicacion.contenido)}</p>
                             ${publicacion.imagen ? `<img src="${publicacion.imagen}" class="img-fluid mb-3" alt="Imagen de publicación">` : ''}
                             <div class="d-flex align-items-center mb-3">
                                 <img src="${publicacion.foto}" alt="Foto de perfil" class="img-fluid rounded-circle" style="width: 50px; height: 50px;">
@@ -134,6 +142,62 @@
             });
         }
 
+        // Convierte @código en enlaces al perfil del usuario
+        function convertirEnlaces(text) {
+            return text.replace(/@(\w+)/g, '<a href="/usuario.html?codigo_estudiante=$1">@$1</a>');
+        }
+
+        // Detectar el "@" y sugerir usuarios
+        const contenidoInput = document.getElementById('contenido');
+        const suggestions = document.getElementById('suggestions');
+        let timeout = null;
+
+        contenidoInput.addEventListener('keyup', (e) => {
+            const content = contenidoInput.value;
+            const lastWord = content.split(" ").pop();
+
+            if (lastWord.startsWith('@')) {
+                const codigoEstudiante = lastWord.slice(1);
+                if (codigoEstudiante.length > 0) {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => buscarUsuarios(codigoEstudiante), 300);
+                }
+            } else {
+                suggestions.style.display = 'none';
+            }
+        });
+
+        // Buscar usuarios en la base de datos
+        function buscarUsuarios(codigo) {
+            fetch(`/api/usuarios?codigo=${codigo}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        suggestions.innerHTML = '';
+                        data.forEach(user => {
+                            const suggestionItem = document.createElement('div');
+                            suggestionItem.className = 'list-group-item list-group-item-action';
+                            suggestionItem.textContent = `${user.nombre} (${user.codigo_estudiante})`;
+                            suggestionItem.onclick = () => seleccionarUsuario(user.codigo_estudiante);
+                            suggestions.appendChild(suggestionItem);
+                        });
+                        suggestions.style.display = 'block';
+                    } else {
+                        suggestions.style.display = 'none';
+                    }
+                })
+                .catch(error => console.error('Error buscando usuarios:', error));
+        }
+
+        // Insertar el código del estudiante seleccionado en el texto
+        function seleccionarUsuario(codigo) {
+            const content = contenidoInput.value;
+            const words = content.split(" ");
+            words[words.length - 1] = `@${codigo} `;
+            contenidoInput.value = words.join(" ");
+            suggestions.style.display = 'none';
+        }
+
         // Ejecutar al cargar la página
         document.addEventListener('DOMContentLoaded', () => {
             mostrarTendencias();
@@ -145,87 +209,46 @@
 
                 const titulo = document.getElementById('titulo').value;
                 const contenido = document.getElementById('contenido').value;
-                const imagenFile = document.getElementById('imagen').files[0];
+                const imagen = document.getElementById('imagen').files[0];
 
+                // Usuario autenticado
                 const usuarioAutenticado = obtenerUsuarioAutenticado();
-                const nombre = usuarioAutenticado ? usuarioAutenticado.nombre : 'Anónimo';
-                const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg'; // Por defecto si no hay foto
 
-                // Leer la imagen como Data URL
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const nuevaPublicacion = {
-                        titulo,
-                        contenido,
-                        nombre,
-                        carnet: usuarioAutenticado ? usuarioAutenticado.carnet : 'Desconocido',
-                        carrera: usuarioAutenticado ? usuarioAutenticado.carrera : 'Desconocida',
-                        foto,
-                        imagen: e.target.result // Data URL de la imagen
-                    };
-
-                    publicaciones.unshift(nuevaPublicacion);
-                    guardarPublicaciones();
-                    mostrarPublicaciones();
-
-                    // Mostrar mensaje de éxito
-                    document.getElementById('mensajeExito').classList.remove('d-none');
-
-                    // Limpiar formulario
-                    document.getElementById('formPublicacion').reset();
+                // Crear la nueva publicación
+                const nuevaPublicacion = {
+                    titulo,
+                    contenido,
+                    nombre: usuarioAutenticado.nombre,
+                    carnet: usuarioAutenticado.carnet,
+                    carrera: usuarioAutenticado.carrera,
+                    foto: usuarioAutenticado.foto_perfil,
+                    imagen: imagen ? URL.createObjectURL(imagen) : null
                 };
 
-                if (imagenFile) {
-                    reader.readAsDataURL(imagenFile);
-                } else {
-                    // Si no hay imagen, agregar la publicación sin imagen
-                    const nuevaPublicacion = {
-                        titulo,
-                        contenido,
-                        nombre,
-                        carnet: usuarioAutenticado ? usuarioAutenticado.carnet : 'Desconocido',
-                        carrera: usuarioAutenticado ? usuarioAutenticado.carrera : 'Desconocida',
-                        foto
-                    };
+                publicaciones.push(nuevaPublicacion);
+                guardarPublicaciones();
+                mostrarPublicaciones();
 
-                    publicaciones.unshift(nuevaPublicacion);
-                    guardarPublicaciones();
-                    mostrarPublicaciones();
+                // Mostrar mensaje de éxito
+                document.getElementById('mensajeExito').classList.remove('d-none');
+                setTimeout(() => {
+                    document.getElementById('mensajeExito').classList.add('d-none');
+                }, 3000);
 
-                    // Mostrar mensaje de éxito
-                    document.getElementById('mensajeExito').classList.remove('d-none');
-
-                    // Limpiar formulario
-                    document.getElementById('formPublicacion').reset();
-                }
+                // Resetear el formulario
+                document.getElementById('formPublicacion').reset();
             });
-
             // Cerrar sesión
-            document.getElementById('logout').addEventListener('click', function () {
+        document.getElementById('logout').addEventListener('click', function () {
                 localStorage.removeItem('usuarioAutenticado');
                 window.location.href = 'inicio.html'; // Ajusta la ruta según sea necesario
-            });
         });
+    });
+        
     </script>
 </body>
 
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -32,22 +32,22 @@
         <p><strong>Foto de Perfil:</strong> <img id="foto_perfil" src="" alt="Foto de Perfil"></p>
     </div>
     <script>
-        // Función para obtener el código de estudiante de la URL
-        function getCodigoEstudiante() {
+        // Función para obtener el ID del usuario desde la URL
+        function getUserIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('codigo_estudiante');
+            return urlParams.get('id'); // Obtenemos el 'id' del usuario
         }
 
         // Cargar perfil del usuario
         async function loadProfile() {
-            const codigoEstudiante = getCodigoEstudiante();
-            if (!codigoEstudiante) {
-                console.error('Código de estudiante no proporcionado');
+            const userId = getUserIdFromUrl(); // Cambiado a ID
+            if (!userId) {
+                console.error('ID de usuario no proporcionado');
                 return;
             }
 
             try {
-                const response = await fetch(`/usuario/${codigoEstudiante}`);
+                const response = await fetch(`/usuario/${userId}`); // Cambiado a solicitar por ID
                 if (!response.ok) {
                     throw new Error('Error al obtener el perfil');
                 }
@@ -73,14 +73,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-

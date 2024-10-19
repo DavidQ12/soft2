@@ -1,12 +1,13 @@
 // controllers/UserController.js
 const mysql = require('mysql2');
+require('dotenv').config(); //  las variables de entorno  en archivo .env
 
-// Configuración de la base de datos
+// Configuración de la base de datos con  variables de entorno
 const connection = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: '1234567',
-  database: 'uforum2'
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME
 });
 
 connection.connect(err => {

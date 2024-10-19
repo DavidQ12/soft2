@@ -223,7 +223,8 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    
+
         <div class="chat-list" id="chatList">
             <button id="newChatBtn" class="create-chat-btn">Crear nuevo chat</button>
             <!-- Lista de chats -->
@@ -238,6 +239,9 @@
                 <input type="file" name="image" id="fileInput" accept="image/*">
                 <textarea name="message" placeholder="Escribe tu mensaje..."></textarea>
                 <button type="submit">&#9658;</button>
+                <div class="container"> 
+                    <button id="recordButton">Grabar Audio</button> <!-- boton del chat -->
+            <audio id="audioPlayer" controls></audio> 
             </form>
         </div>
     </div>
@@ -348,6 +352,63 @@
                     appendMessageToChatBox(message);
                 }
             }
+            
+            // Audios
+let mediaRecorder;
+let audioChunks = [];
+
+document.getElementById('recordButton').addEventListener('click', async () => {
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.start();
+    
+    mediaRecorder.addEventListener('dataavailable', event => {
+      audioChunks.push(event.data);
+    });
+
+    mediaRecorder.addEventListener('stop', () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(audioBlob);
+      
+      // Guardar el audio en localStorage
+      saveAudioLocally(audioUrl);
+
+      // Reproducir el audio
+      const audioPlayer = document.getElementById('audioPlayer');
+      audioPlayer.src = audioUrl;
+
+      audioChunks = [];
+    });
+
+    document.getElementById('recordButton').innerText = 'Detener Grabación';
+  } else {
+    mediaRecorder.stop();
+    document.getElementById('recordButton').innerText = 'Grabar Audio';
+  }
+});
+
+// Función para guardar el audio en localStorage
+function saveAudioLocally(audioUrl) {
+  let savedAudios = JSON.parse(localStorage.getItem('savedAudios')) || [];
+  savedAudios.push(audioUrl);
+  localStorage.setItem('savedAudios', JSON.stringify(savedAudios));
+}
+
+// Función para cargar los audios guardados
+function loadSavedAudios() {
+  const savedAudios = JSON.parse(localStorage.getItem('savedAudios')) || [];
+  savedAudios.forEach(audioUrl => {
+    const audioElement = document.createElement('audio');
+    audioElement.controls = true;
+    audioElement.src = audioUrl;
+    document.body.appendChild(audioElement); // Agregar audios a la página
+  });
+}
+
+// Cargar audios guardados al cargar la página(Acá acaban los audios)
+document.addEventListener('DOMContentLoaded', loadSavedAudios);
+
 
             // Botón para crear un nuevo chat
             document.getElementById('newChatBtn').addEventListener('click', function() {

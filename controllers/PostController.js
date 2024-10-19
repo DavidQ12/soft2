@@ -29,6 +29,31 @@ if (!localStorage.getItem('publicaciones')) {
     localStorage.setItem('publicaciones', JSON.stringify(publicacionesIniciales));
 }
 
+// Simulamos usuarios registrados
+const usuariosRegistrados = [
+    { nombre: 'David Ernesto Quintanilla Segovia', codigo_estudiante: 'SMSS152722', id: 1 },
+    { nombre: 'Luis Francisco Pleitez Quintanilla', codigo_estudiante: 'SMSS073122', id: 2 },
+    { nombre: 'Patrick Jeremi Orellana Menjívar', codigo_estudiante: 'SMSS108822', id: 3 }
+];
+
+// Función para detectar menciones en el contenido
+function procesarEtiquetas(contenido) {
+    const regex = /@([A-Za-z0-9]+)/g; // Detecta el "@" seguido de cualquier código de estudiante
+    let contenidoModificado = contenido;
+    let match;
+
+    while ((match = regex.exec(contenido)) !== null) {
+        const codigoEstudiante = match[1];
+        const usuario = usuariosRegistrados.find(user => user.codigo_estudiante === codigoEstudiante);
+
+        if (usuario) {
+            const perfilLink = `<a href="usuario.html?id=${usuario.id}">@${usuario.codigo_estudiante}</a>`;
+            contenidoModificado = contenidoModificado.replace(`@${codigoEstudiante}`, perfilLink);
+        }
+    }
+    return contenidoModificado;
+}
+
 function obtenerPublicaciones() {
     return JSON.parse(localStorage.getItem('publicaciones')) || [];
 }
@@ -50,13 +75,16 @@ function crearPublicacion(titulo, contenido) {
         return;
     }
 
+    // Procesar las etiquetas antes de guardar el contenido
+    const contenidoConEtiquetas = procesarEtiquetas(contenido);
+
     const nuevaPublicacion = {
         titulo,
-        contenido,
+        contenido: contenidoConEtiquetas, // Guardamos el contenido con las etiquetas procesadas
         nombre: usuarioAutenticado.nombre,
         carnet: usuarioAutenticado.carnet,
         carrera: usuarioAutenticado.carrera,
-        foto: usuarioAutenticado.foto // Tendria que Usar la foto del usuario autenticado
+        foto: usuarioAutenticado.foto // Usar la foto del usuario autenticado
     };
 
     publicaciones.unshift(nuevaPublicacion); // Añadir al principio del array
@@ -103,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const titulo = document.getElementById('titulo').value;
         const contenido = document.getElementById('contenido').value;
 
-        // Obtener la foto del usuario autenticado para la nueva publicación(no funciona)
+        // Obtener la foto del usuario autenticado para la nueva publicación
         const usuarioAutenticado = obtenerUsuarioAutenticado();
         const foto = usuarioAutenticado ? usuarioAutenticado.foto : 'images/default.jpg';
 
@@ -116,18 +144,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('formPublicacion').reset();
     });
 
-    // Cerrar sesión
-    document.getElementById('logout').addEventListener('click', function () {
-        localStorage.removeItem('usuarioAutenticado'); // Opcional, para limpiar la sesión
-        window.location.href = 'inicio.html'; // Ajusta la ruta según sea necesario
-    });
+   // Cerrar sesión
+   document.getElementById('logout').addEventListener('click', function () {
+    localStorage.removeItem('usuarioAutenticado'); // Opcional, para limpiar la sesión
+    window.location.href = 'inicio.html'; // Ajusta la ruta según sea necesario
 });
-
-
-
-
-
-
-
-
-
+});
