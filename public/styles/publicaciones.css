@@ -1,55 +1,83 @@
+/* Estilos generales para el cuerpo */
 body {
-    background-color: #f4f4f9;
+    background-color: #f0f2f5; /* Fondo más suave */
     color: #333;
-    font-family: Arial, sans-serif;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
 }
 
+/* Estilos del encabezado */
 header {
+    background-color: #007bff; /* Color de fondo del encabezado */
+    padding: 20px;
+    color: white;
+    font-size: 1.5rem;
     border-bottom: 1px solid #ddd;
 }
 
+/* Estilos para las tarjetas */
 .card {
     border: none;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Sombra más sutil */
     margin-bottom: 20px;
+    background-color: #ffffff;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el mouse */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15); /* Sombra más fuerte al pasar el mouse */
+}
+
+/* Encabezado de la tarjeta */
 .card-header {
-    background-color: #007bff;
+    background-color: #0056b3; /* Color de fondo del encabezado de la tarjeta */
     color: white;
-    border-bottom: none;
-    border-radius: 10px 10px 0 0;
-    font-size: 1.25rem;
+    border-bottom: 1px solid #ddd;
+    border-radius: 12px 12px 0 0;
+    font-size: 1.2rem;
+    padding: 15px;
 }
 
+/* Cuerpo de la tarjeta */
 .card-body {
-    background-color: white;
-    padding: 20px;
-    border-radius: 0 0 10px 10px;
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 0 0 12px 12px;
+    font-size: 1rem;
 }
 
+/* Estilos para las imágenes dentro de las tarjetas */
 .card-body img {
     max-width: 100%;
-    border-radius: 10px;
-    margin-top: 15px;
+    border-radius: 12px;
+    margin-top: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+/* Botones */
 .btn-primary {
     background-color: #007bff;
     border-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .btn-primary:hover {
     background-color: #0056b3;
     border-color: #004085;
+    cursor: pointer;
 }
 
+/* Estilos para las tendencias */
 .tendencias {
     background-color: #ffffff;
     padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
     margin-right: 20px;
     flex: 0 0 25%;
 }
@@ -57,8 +85,9 @@ header {
 .tendencia-item {
     cursor: pointer;
     color: #007bff;
-    padding: 10px;
-    border-radius: 5px;
+    padding: 12px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
 }
 
 .tendencia-item:hover {
@@ -66,21 +95,99 @@ header {
     text-decoration: none;
 }
 
+/* Estilos del área de contenido */
 .content-area {
     flex: 1;
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
 }
 
+/* Formularios */
 .form-group label {
     font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
 }
 
+.form-control {
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+/* Estilos del archivo de entrada */
 .form-control-file {
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 10px;
 }
 
+/* Alertas */
 .alert-success {
-    border-radius: 5px;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    color: #155724;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 20px;
 }
 
+/* Barra de búsqueda */
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* Mejoras en la visualización de las imágenes */
+.imagen-publicacion {
+    max-width: 300px;
+    max-height: 200px;
+    object-fit: cover;
+    margin-bottom: 1rem;
+}
+
+/* Sombra sutil para los elementos de la lista de tendencias */
+.tendencia-item:hover {
+    background-color: #f7f9fc;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Espaciado y alineación del perfil en las publicaciones */
+.card-body .d-flex {
+    align-items: center;
+    margin-top: 15px;
+}
+
+.card-body .d-flex img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}
+
+.card-body .d-flex div {
+    margin-left: 15px;
+}
+
+.card-body .d-flex div small {
+    font-size: 0.9rem;
+    color: #666;
+}
+
+/* Agregar efecto sutil de sombra a las imágenes */
+.card-body img {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

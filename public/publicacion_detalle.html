@@ -23,11 +23,23 @@
             display: inline-block;
             margin-left: 5px;
         }
+        /* Estilo para el mensaje de reportado */
+        .reportado {
+            margin-top: 10px;
+            color: green;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
         <div id="publicacionDetalle"></div>
+
+        <!-- Botón para reportar la publicación -->
+        <div class="mb-4">
+            <button class="btn btn-danger" id="btnReportar" onclick="reportarPublicacion()">Reportar Publicación</button>
+            <p id="mensajeReportado" class="reportado" style="display: none;">Publicación reportada</p>
+        </div>
 
         <!-- Botón para iniciar un chat con el autor -->
         <div class="mb-4">
@@ -175,7 +187,7 @@
                 // Limpiar formulario
                 document.getElementById('formComentario').reset();
             };
-            
+
             if (imagen) {
                 reader.readAsDataURL(imagen);
             } else {
@@ -215,16 +227,18 @@
             document.getElementById('me_enoja_count').innerText = reacciones.me_enoja;
         }
 
-        // Función para iniciar chat
-        function iniciarChat() {
-            const publicacion = obtenerDetallePublicacion(id);
-            const nombreAutor = publicacion.nombre;
-
-            // Redirigir a la página de chat con el nombre del autor
-            window.location.href = `chat.html?autor=${nombreAutor}`;
+        // Reportar la publicación
+        function reportarPublicacion() {
+            document.getElementById('mensajeReportado').style.display = 'block';
+            document.getElementById('btnReportar').disabled = true;
         }
 
-        // Mostrar detalles de la publicación y comentarios al cargar la página
+        // Función para iniciar un chat con el autor (placeholder)
+        function iniciarChat() {
+            alert('Funcionalidad de chat no implementada aún.');
+        }
+
+        // Mostrar los detalles y comentarios cuando se carga la página
         mostrarDetallePublicacion();
         mostrarComentarios();
     </script>

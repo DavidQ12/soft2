@@ -13,6 +13,14 @@
             overflow-y: auto;
             z-index: 1000;
         }
+
+        /* Estilo para las imágenes de las publicaciones */
+        .imagen-publicacion {
+            max-width: 300px; /* Ancho máximo  */
+            max-height: 200px; /* Altura máxima */
+            object-fit: cover; 
+            margin-bottom: 1rem; 
+        }
     </style>
 </head>
 
@@ -71,6 +79,11 @@
                 </div>
             </div>
 
+            <!-- Barra de búsqueda -->
+            <div class="mb-4">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar publicaciones..." oninput="filtrarPublicaciones(this.value)">
+            </div>
+
             <div id="contenedorPublicaciones">
                 <!-- Aquí se mostrarán las publicaciones -->
             </div>
@@ -114,6 +127,11 @@
             localStorage.setItem('publicaciones', JSON.stringify(publicaciones));
         }
 
+        // Obtener publicaciones
+        function obtenerPublicaciones() {
+            return publicaciones;
+        }
+
         // Mostrar publicaciones en la página
         function mostrarPublicaciones() {
             const contenedorPublicaciones = document.getElementById('contenedorPublicaciones');
@@ -125,7 +143,7 @@
                         <div class="card-body">
                             <h5 class="card-title">${publicacion.titulo}</h5>
                             <p>${convertirEnlaces(publicacion.contenido)}</p>
-                            ${publicacion.imagen ? `<img src="${publicacion.imagen}" class="img-fluid mb-3" alt="Imagen de publicación">` : ''}
+                            ${publicacion.imagen ? `<img src="${publicacion.imagen}" class="imagen-publicacion" alt="Imagen de publicación">` : ''}
                             <div class="d-flex align-items-center mb-3">
                                 <img src="${publicacion.foto}" alt="Foto de perfil" class="img-fluid rounded-circle" style="width: 50px; height: 50px;">
                                 <div class="ml-3">
@@ -147,110 +165,74 @@
             return text.replace(/@(\w+)/g, '<a href="/usuario.html?codigo_estudiante=$1">@$1</a>');
         }
 
-        // Detectar el "@" y sugerir usuarios
-        const contenidoInput = document.getElementById('contenido');
-        const suggestions = document.getElementById('suggestions');
-        let timeout = null;
+        // Función para crear una nueva publicación
+        function crearPublicacion(titulo, contenido, imagen) {
+            const usuario = obtenerUsuarioAutenticado();
+            const nuevaPublicacion = {
+                nombre: usuario.nombre,
+                carnet: usuario.codigo_estudiante,
+                carrera: usuario.carrera,
+                foto: usuario.foto,
+                titulo: titulo,
+                contenido: contenido,
+                imagen: imagen
+            };
 
-        contenidoInput.addEventListener('keyup', (e) => {
-            const content = contenidoInput.value;
-            const lastWord = content.split(" ").pop();
-
-            if (lastWord.startsWith('@')) {
-                const codigoEstudiante = lastWord.slice(1);
-                if (codigoEstudiante.length > 0) {
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => buscarUsuarios(codigoEstudiante), 300);
-                }
-            } else {
-                suggestions.style.display = 'none';
-            }
-        });
-
-        // Buscar usuarios en la base de datos
-        function buscarUsuarios(codigo) {
-            fetch(`/api/usuarios?codigo=${codigo}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        suggestions.innerHTML = '';
-                        data.forEach(user => {
-                            const suggestionItem = document.createElement('div');
-                            suggestionItem.className = 'list-group-item list-group-item-action';
-                            suggestionItem.textContent = `${user.nombre} (${user.codigo_estudiante})`;
-                            suggestionItem.onclick = () => seleccionarUsuario(user.codigo_estudiante);
-                            suggestions.appendChild(suggestionItem);
-                        });
-                        suggestions.style.display = 'block';
-                    } else {
-                        suggestions.style.display = 'none';
-                    }
-                })
-                .catch(error => console.error('Error buscando usuarios:', error));
-        }
-
-        // Insertar el código del estudiante seleccionado en el texto
-        function seleccionarUsuario(codigo) {
-            const content = contenidoInput.value;
-            const words = content.split(" ");
-            words[words.length - 1] = `@${codigo} `;
-            contenidoInput.value = words.join(" ");
-            suggestions.style.display = 'none';
-        }
-
-        // Ejecutar al cargar la página
-        document.addEventListener('DOMContentLoaded', () => {
-            mostrarTendencias();
+            publicaciones.push(nuevaPublicacion);
+            guardarPublicaciones();
             mostrarPublicaciones();
+            document.getElementById('mensajeExito').classList.remove('d-none');
+        }
 
-            // Manejar el envío del formulario para crear una nueva publicación
-            document.getElementById('formPublicacion').addEventListener('submit', function (event) {
-                event.preventDefault();
-
-                const titulo = document.getElementById('titulo').value;
-                const contenido = document.getElementById('contenido').value;
-                const imagen = document.getElementById('imagen').files[0];
-
-                // Usuario autenticado
-                const usuarioAutenticado = obtenerUsuarioAutenticado();
-
-                // Crear la nueva publicación
-                const nuevaPublicacion = {
-                    titulo,
-                    contenido,
-                    nombre: usuarioAutenticado.nombre,
-                    carnet: usuarioAutenticado.carnet,
-                    carrera: usuarioAutenticado.carrera,
-                    foto: usuarioAutenticado.foto_perfil,
-                    imagen: imagen ? URL.createObjectURL(imagen) : null
-                };
-
-                publicaciones.push(nuevaPublicacion);
-                guardarPublicaciones();
-                mostrarPublicaciones();
-
-                // Mostrar mensaje de éxito
-                document.getElementById('mensajeExito').classList.remove('d-none');
-                setTimeout(() => {
-                    document.getElementById('mensajeExito').classList.add('d-none');
-                }, 3000);
-
-                // Resetear el formulario
-                document.getElementById('formPublicacion').reset();
-            });
-            // Cerrar sesión
-        document.getElementById('logout').addEventListener('click', function () {
-                localStorage.removeItem('usuarioAutenticado');
-                window.location.href = 'inicio.html'; // Ajusta la ruta según sea necesario
+        // Manejar el formulario de publicación
+        document.getElementById('formPublicacion').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const titulo = document.getElementById('titulo').value;
+            const contenido = document.getElementById('contenido').value;
+            const imagen = document.getElementById('imagen').files[0] ? URL.createObjectURL(document.getElementById('imagen').files[0]) : null;
+            crearPublicacion(titulo, contenido, imagen);
         });
-    });
-        
+
+        // Filtrar publicaciones
+        function filtrarPublicaciones(query) {
+            const publicacionesFiltradas = publicaciones.filter(publicacion =>
+                publicacion.titulo.toLowerCase().includes(query.toLowerCase()) ||
+                publicacion.contenido.toLowerCase().includes(query.toLowerCase())
+            );
+            mostrarPublicacionesFiltradas(publicacionesFiltradas);
+        }
+
+        // Mostrar publicaciones filtradas
+        function mostrarPublicacionesFiltradas(publicacionesFiltradas) {
+            const contenedorPublicaciones = document.getElementById('contenedorPublicaciones');
+            contenedorPublicaciones.innerHTML = '';
+            publicacionesFiltradas.forEach(publicacion => {
+                const publicacionHTML = `
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">${publicacion.titulo}</h5>
+                            <p>${convertirEnlaces(publicacion.contenido)}</p>
+                            ${publicacion.imagen ? `<img src="${publicacion.imagen}" class="imagen-publicacion" alt="Imagen de publicación">` : ''}
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="${publicacion.foto}" alt="Foto de perfil" class="img-fluid rounded-circle" style="width: 50px; height: 50px;">
+                                <div class="ml-3">
+                                    <strong>${publicacion.nombre}</strong><br>
+                                    <small class="text-muted">Carnet: ${publicacion.carnet}</small><br>
+                                    <small class="text-muted">Carrera: ${publicacion.carrera}</small>
+                                </div>
+                            </div>
+                            <a href="publicacion_detalle.html?id=${publicaciones.indexOf(publicacion)}" class="btn btn-outline-primary">Ver más</a>
+                        </div>
+                    </div>
+                `;
+                contenedorPublicaciones.innerHTML += publicacionHTML;
+            });
+        }
+
+        // Cargar las publicaciones al iniciar la página
+        mostrarTendencias();
+        mostrarPublicaciones();
     </script>
 </body>
 
 </html>
-
-
-
-
-
