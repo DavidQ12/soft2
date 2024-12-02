@@ -30,15 +30,13 @@ Clonar el repositorio:
 
 
 git clone https://github.com/DavidQ12/uforum.git
-
+```bash
 Acceder al directorio del proyecto:
-
-
 cd uforum
 Instalar las dependencias necesarias:
 
 
-```bash
+
 npm install
 Configurar las variables de entorno
 Crea un archivo .env con las siguientes variables:
@@ -54,6 +52,6 @@ Importa el archivo schema.sql del repositorio.
 Iniciar el servidor
 npm start
 Accede al proyecto en http://localhost:3000.
-
+```
 ## Autores ✒️
 David Q12 - GitHub
