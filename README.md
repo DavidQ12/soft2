@@ -38,7 +38,7 @@ cd uforum
 Instalar las dependencias necesarias:
 
 
-
+```bash
 npm install
 Configurar las variables de entorno
 Crea un archivo .env con las siguientes variables:
