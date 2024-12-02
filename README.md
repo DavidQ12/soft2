@@ -58,7 +58,7 @@ Instalar las dependencias necesarias:
 ```
 npm install
 ```
-Configurar las variables de entorno:
+## Configurar las variables de entorno
 Crea un archivo .env con las siguientes variables:
 
 ```
@@ -69,11 +69,11 @@ DB_PASSWORD=1234567
 DB_NAME=uforum
 PORT=3000
 ```
-Configurar la base de datos:
+Configurar la base de datos
 Crea la base de datos uforum en MySQL.
 Importa el archivo schema.sql del repositorio.
-Iniciar el servidor
 
+Iniciar el servidor
 ```
 npm start
 Accede al proyecto en http://localhost:3000.
@@ -84,3 +84,6 @@ Windows 10/11, MacOS 11+, o distribuciones Linux (Ubuntu 20.04 recomendado).
 Software:
 Node.js y MySQL instalados previamente.
 Editor de texto para personalizar las configuraciones, como Visual Studio Code.
+
+## Autores ✒️
+David Q12 - Trabajo inicial y desarrollo -https://github.com/DavidQ12
