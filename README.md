@@ -1,22 +1,59 @@
 # Uforum
 
-¡Bienvenido a Uforum! 🎓 Este es un foro universitario hecho con mucho esfuerzo y cariño para la comunidad de la Universidad Gerardo Barrios (UGB). La idea principal es que los estudiantes, especialmente los que están comenzando su aventura en la universidad, puedan interactuar y compartir ideas de forma sencilla y cómoda. 🤝
+Uforum es un foro universitario creado para facilitar la interacción entre estudiantes de la Universidad Gerardo Barrios (UGB). Es una plataforma donde los estudiantes pueden crear publicaciones, comentar, reaccionar, y participar en chats en tiempo real. El objetivo principal es construir una comunidad donde estudiantes nuevos y de antiguo ingreso puedan compartir ideas, resolver dudas y hacer amigos.
+
+## INSTALACION 🚀
+
+Estas instrucciones te permitirán obtener una copia del proyecto en funcionamiento en tu máquina local para propósitos de desarrollo y pruebas.
 
 
 
-# ¿De qué va Uforum?
+## Pre-requisitos 📋
 
-Uforum es básicamente un espacio virtual donde puedes
+Antes de instalar el proyecto, asegúrate de contar con:
 
-Crear publicaciones sobre cualquier tema interesante.
-Comentar y reaccionar a las ideas de tus compañeros.
-Tener charlas en tiempo real por el chat integrado.
+- **Node.js** (versión 16 o superior)  
+- **Git** (para clonar el repositorio)  
+- **Base de datos MySQL** (versión 8.0 o superior)  
+- **Editor de código** ( Visual Studio Code)
 
-Sobre todo, conectar con otros estudiantes para resolver dudas, hacer amigos o simplemente pasar el rato.
+Ejemplo de instalación:  
 
-Queremos que sea como un espacio  donde los estudiantes nuevos y antiguo ingreso puedan cruzarse, aprender unos de otros y sentirse acompañados. 🎉
+sudo apt install nodejs
+sudo apt install git
 
-## Authors
+## Instalación 🔧
+Sigue estos pasos para tener el entorno de desarrollo funcionando:
 
-- [@DavidQ12 https://github.com/DavidQ12]
+Clonar el repositorio:
 
+
+
+git clone https://github.com/DavidQ12/uforum.git
+
+Acceder al directorio del proyecto:
+
+
+cd uforum
+Instalar las dependencias necesarias:
+
+
+
+npm install
+Configurar las variables de entorno
+Crea un archivo .env con las siguientes variables:
+DB_HOST=localhost
+DB_USER=root
+DB_PASSWORD=1234567
+DB_NAME=uforum
+PORT=3000
+Configurar la base de datos:
+
+Crea la base de datos uforum en MySQL.
+Importa el archivo schema.sql del repositorio.
+Iniciar el servidor
+npm start
+Accede al proyecto en http://localhost:3000.
+
+## Autores ✒️
+David Q12 - GitHub
