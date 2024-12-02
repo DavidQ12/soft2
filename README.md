@@ -54,4 +54,5 @@ npm start
 Accede al proyecto en http://localhost:3000.
 ```
 ## Autores ✒️
-David Q12 - GitHub
+David Q12 - GitHub 
+https://github.com/DavidQ12
