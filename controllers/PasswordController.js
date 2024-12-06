@@ -17,7 +17,7 @@ const db = mysql.createPool({
 
 // Configura el transporte de Nodemailer
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', // O cualquier otro servicio como SendGrid, SMTP
+    service: 'Gmail', 
     auth: {
         user: process.env.EMAIL_USER, // Email del archivo .env
         pass: process.env.EMAIL_PASS // Contraseña del email desde el .env

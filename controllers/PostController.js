@@ -147,6 +147,6 @@ document.addEventListener('DOMContentLoaded', function() {
    // Cerrar sesión
    document.getElementById('logout').addEventListener('click', function () {
     localStorage.removeItem('usuarioAutenticado'); // Opcional, para limpiar la sesión
-    window.location.href = 'inicio.html'; // Ajusta la ruta según sea necesario
+    window.location.href = 'inicio.html'; 
 });
 });
